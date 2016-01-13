@@ -2,17 +2,17 @@
 var querystring = require('querystring')
 var proxyquire = require('proxyquire')
 var sinon = require('sinon')
-var httpsSpy = sinon.spy(function () {
-  return {setTimeout: function () {}}
-})
 
 var authKey = '12345'
 var authQs = '?auth_key=' + authKey
 var eventKey = 'foo'
 var baseUrl = 'https://cronitor.link'
 
-var cronitorNoAuth = proxyquire('../index', {'https': {'get': httpsSpy}})()
+var httpsSpy = sinon.spy(function () {
+  return {setTimeout: function () {}}
+})
 
+var cronitorNoAuth = proxyquire('../index', {'https': {'get': httpsSpy}})()
 var cronitorAuth = proxyquire('../index', {'https': {'get': httpsSpy}})(authKey)
 
 describe('#cronitor', function () {
