@@ -4,12 +4,16 @@
   "description": "A no-dependency library to make calling cronitor endpoints easy",
   "main": "index.js",
   "repository" :
-  { "type" : "git"
-  , "url" : "https://github.com/bigethan/cronitor-caller.git"
-  }
+  {
+    "type" : "git",
+    "url" : "https://github.com/bigethan/cronitor-caller.git"
+  },
   "scripts": {
     "test": "mocha"
   },
+  "files": [
+    "index.js"
+  ],
   "keywords": [
     "cronitor"
   ],

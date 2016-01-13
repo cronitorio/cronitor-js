@@ -1,16 +1,17 @@
 var https = require('https')
 var querystring = require('querystring')
 var cronitorUrl = 'https://cronitor.link'
+var noop = function () {}
 
 module.exports = function (authKey) {
   return {
     run: function (id) {
       var urlObj = buildUrlObj('run', id, authKey)
-      https.get(buildUrl(urlObj))
+      getWithTimeout(buildUrl(urlObj))
     },
     complete: function (id) {
       var urlObj = buildUrlObj('complete', id, authKey)
-      https.get(buildUrl(urlObj))
+      getWithTimeout(buildUrl(urlObj))
     },
     fail: function (id, msg) {
       var urlObj = buildUrlObj('fail', id, authKey)
@@ -20,7 +21,7 @@ module.exports = function (authKey) {
         }
         urlObj.qs.msg = msg
       }
-      https.get(buildUrl(urlObj))
+      getWithTimeout(buildUrl(urlObj))
     },
     pause: function (id, hours) {
       if (!hours) {
@@ -28,9 +29,14 @@ module.exports = function (authKey) {
       }
       var urlObj = buildUrlObj('pause', id, authKey)
       urlObj.basePath += '/' + hours
-      https.get(buildUrl(urlObj))
+      getWithTimeout(buildUrl(urlObj))
     }
   }
+}
+
+function getWithTimeout (url) {
+  var req = https.get(url, noop)
+  req.setTimeout((10 * 1000), noop)
 }
 
 function buildUrlObj (pingUrl, id, authKey) {
