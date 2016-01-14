@@ -1,6 +1,6 @@
 {
   "name": "cronitor-caller",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A no-dependency library to make calling cronitor endpoints easy",
   "main": "index.js",
   "repository": {
