@@ -17,7 +17,6 @@ var cronitor = require('cronitor-caller')()
 cronitor.run('d3x0c1')
 cronitor.complete('d3x0c1')
 cronitor.fail('d3x0c1', 'not enough foo')
-cronitor.pause('d3x0c1', 7) // hours
 ```
 
 ## Contributing
