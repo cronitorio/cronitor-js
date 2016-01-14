@@ -37,10 +37,6 @@ describe('#cronitor', function () {
     cronitorNoAuth.fail(eventKey, msg)
     httpsSpy.calledWith(baseUrl + '/' + eventKey + '/fail?msg=' + querystring.escape(msg)).should.equal(true)
   })
-  it('no auth calls pause correctly', function () {
-    cronitorNoAuth.pause(eventKey, 5)
-    httpsSpy.calledWith(baseUrl + '/' + eventKey + '/pause/5').should.equal(true)
-  })
   it('authed calls run correctly', function () {
     cronitorAuth.run(eventKey)
     httpsSpy.calledWith(baseUrl + '/' + eventKey + '/run' + authQs).should.equal(true)
@@ -57,18 +53,5 @@ describe('#cronitor', function () {
     var msg = 'a message'
     cronitorAuth.fail(eventKey, msg)
     httpsSpy.calledWith(baseUrl + '/' + eventKey + '/fail' + authQs + '&msg=' + querystring.escape(msg)).should.equal(true)
-  })
-  it('authed calls pause correctly', function () {
-    cronitorAuth.pause(eventKey, 5)
-    httpsSpy.calledWith(baseUrl + '/' + eventKey + '/pause/5' + authQs).should.equal(true)
-  })
-  it('pause throws when no hour is supplied', function () {
-    var caught = false
-    try {
-      cronitorAuth.pause(eventKey)
-    } catch (e) {
-      caught = true
-    }
-    caught.should.equal(true)
   })
 })

@@ -22,14 +22,6 @@ module.exports = function (authKey) {
         urlObj.qs.msg = msg
       }
       getWithTimeout(buildUrl(urlObj))
-    },
-    pause: function (id, hours) {
-      if (!hours) {
-        throw new Error('cronitor.pause requires an hours argument')
-      }
-      var urlObj = buildUrlObj('pause', id, authKey)
-      urlObj.basePath += '/' + hours
-      getWithTimeout(buildUrl(urlObj))
     }
   }
 }
@@ -52,5 +44,6 @@ function buildUrlObj (pingUrl, id, authKey) {
 }
 
 function buildUrl (urlObj) {
-  return urlObj.basePath + (urlObj.qs ? '?' + querystring.stringify(urlObj.qs) : '')
+  var url = urlObj.basePath + (urlObj.qs ? '?' + querystring.stringify(urlObj.qs) : '')
+  return url
 }
