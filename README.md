@@ -16,6 +16,7 @@ var cronitor = require('cronitor-caller')()
 // api matches cronitor's
 cronitor.run('d3x0c1')
 cronitor.complete('d3x0c1')
+cronitor.pause('d3x0c1', 5) //pause for 5 hours
 cronitor.fail('d3x0c1', 'not enough foo')
 ```
 

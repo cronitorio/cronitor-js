@@ -7,6 +7,7 @@ var authKey = '12345'
 var authQs = '?auth_key=' + authKey
 var eventKey = 'foo'
 var baseUrl = 'https://cronitor.link'
+var basePauseUrl = 'https://cronitor.io'
 
 var httpsSpy = sinon.spy(function () {
   return {setTimeout: function () {}}
@@ -28,6 +29,10 @@ describe('#cronitor', function () {
     cronitorNoAuth.complete(eventKey)
     httpsSpy.calledWith(baseUrl + '/' + eventKey + '/complete').should.equal(true)
   })
+  it('no auth calls pause correctly', function () {
+    cronitorNoAuth.pause(eventKey, 5)
+    httpsSpy.calledWith(basePauseUrl + '/' + eventKey + '/pause/5').should.equal(true)
+  })
   it('no auth calls fail correctly no message', function () {
     cronitorNoAuth.fail(eventKey)
     httpsSpy.calledWith(baseUrl + '/' + eventKey + '/fail').should.equal(true)
@@ -44,6 +49,10 @@ describe('#cronitor', function () {
   it('authed calls complete correctly', function () {
     cronitorAuth.complete(eventKey)
     httpsSpy.calledWith(baseUrl + '/' + eventKey + '/complete' + authQs).should.equal(true)
+  })
+  it('authed calls pause correctly', function () {
+    cronitorAuth.pause(eventKey, 5)
+    httpsSpy.calledWith(basePauseUrl + '/' + eventKey + '/pause/5' + authQs).should.equal(true)
   })
   it('authed calls fail correctly no message', function () {
     cronitorAuth.fail(eventKey)
