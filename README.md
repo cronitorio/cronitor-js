@@ -1,5 +1,8 @@
 # Cronitor Caller
 
+Note: this module is for triggering cronitor ping urls only. If you want to
+create/view/modify your monitors programmatically, please use https://www.npmjs.com/package/cronitor-client
+
 ## Installation
 
 `npm install cronitor-caller`
