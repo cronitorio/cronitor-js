@@ -1,8 +1,11 @@
 # Cronitor Caller
 ![Travis Build](https://img.shields.io/travis/bigethan/cronitor-caller/master.svg)
 ![Coveralls](https://img.shields.io/coveralls/bigethan/cronitor-caller/master.svg)
-Note: this module is for triggering cronitor ping urls only. If you want to
-create/view/modify your monitors programmatically, please use https://www.npmjs.com/package/cronitor-client
+![dependencies](https://img.shields.io/badge/dependencies-NONE!-brightgreen.svg)
+
+
+A module for triggering cronitor ping urls. If you want to
+create/view/modify your cronitors programmatically, please use https://www.npmjs.com/package/cronitor-client
 
 ## Installation
 
