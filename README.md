@@ -1,10 +1,10 @@
 # Cronitor Caller
-![Travis Build](https://img.shields.io/travis/bigethan/cronitor-caller/master.svg)
-![Coveralls](https://img.shields.io/coveralls/bigethan/cronitor-caller/master.svg)
+[![Travis Build](https://img.shields.io/travis/bigethan/cronitor-caller/master.svg)](https://travis-ci.org/bigethan/cronitor-caller)
+[![Coveralls](https://img.shields.io/coveralls/bigethan/cronitor-caller/master.svg)](https://coveralls.io/github/bigethan/cronitor-caller?branch=master)
 ![dependencies](https://img.shields.io/badge/dependencies-NONE!-brightgreen.svg)
 
 
-A module for triggering cronitor ping urls. If you want to
+A dependency free module for triggering cronitor ping urls. If you want to
 create/view/modify your cronitors programmatically, please use https://www.npmjs.com/package/cronitor-client
 
 ## Installation
