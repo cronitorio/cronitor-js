@@ -8,7 +8,9 @@
     "url": "https://github.com/bigethan/cronitor-caller.git"
   },
   "scripts": {
-    "test": "mocha && istanbul report text-summary lcov"
+    "test": "mocha",
+    "cover": "istanbul cover _mocha",
+    "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | coveralls"
   },
   "files": [
     "index.js"
@@ -22,6 +24,7 @@
     "coveralls": "^2.11.9",
     "istanbul": "^0.4.3",
     "mocha": "^2.3.4",
+    "mocha-lcov-reporter": "^1.2.0",
     "proxyquire": "^1.7.3",
     "should": "^8.1.1",
     "sinon": "^1.17.2",
