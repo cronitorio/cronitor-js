@@ -4,6 +4,7 @@ var cronitorUrl = 'https://cronitor.link'
 // the pause url redirects to the main url
 // and including a url dependency felt like too much
 var cronitorPauseUrl = 'https://cronitor.io'
+/* istanbul ignore next: not testing https module */
 var noop = function () {}
 
 module.exports = function (authKey) {
@@ -36,6 +37,7 @@ module.exports = function (authKey) {
 
 // timeout keeps the req from hanging
 // if cronitor is down, slow, etc
+// noop: ping cronitor and don't hang, dont care about what was said in return
 function getWithTimeout (url) {
   var req = https.get(url, noop)
   req.setTimeout((10 * 1000), noop)

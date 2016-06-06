@@ -19,6 +19,7 @@
   "author": "bigethan",
   "license": "MIT",
   "devDependencies": {
+    "istanbul": "^0.4.3",
     "mocha": "^2.3.4",
     "proxyquire": "^1.7.3",
     "should": "^8.1.1",
