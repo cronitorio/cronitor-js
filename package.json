@@ -1,6 +1,6 @@
 {
-  "name": "cronitor-caller",
-  "version": "1.1.2",
+  "name": "cronitor",
+  "version": "3.0.0",
   "description": "A minimal dependency library to make easy to work with Cronitor's Monitor and Ping APIs",
   "main": "index.js",
   "repository": {
@@ -8,8 +8,7 @@
     "url": "https://github.com/cronitorio/cronitor-js.git"
   },
   "scripts": {
-    "test": "mocha",
-    "test_monitor": "gulp test",
+    "test": "mocha -R spec --ui bdd",
     "cover": "istanbul cover _mocha",
     "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | coveralls"
   },
@@ -23,17 +22,19 @@
   ],
   "author": "aflanagan",
   "license": "MIT",
+  "dependencies": {
+    "request": "2.88.2"
+  },
   "devDependencies": {
-    "coveralls": "^2.11.9",
+    "chai": "^4.2.0",
+    "coveralls": "^3.0.11",
     "istanbul": "^0.4.3",
-    "mocha": "^2.3.4",
+    "mocha": "^7.1.1",
     "mocha-lcov-reporter": "^1.2.0",
+    "nock": "12.0.3",
     "proxyquire": "^1.7.3",
     "should": "^8.1.1",
     "sinon": "^1.17.2",
-    "standard": "^5.4.1",
-    "gulp": "^3.9.0",
-    "gulp-jasmine": "^2.0.1",
-    "jasmine-reporters": "^2.0.6"
+    "standard": "^14.3.3"
   }
 }

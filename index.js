@@ -1,42 +1,10 @@
 var https = require('https')
 var querystring = require('querystring')
 var request = require("request")
-var MONITOR_API_URL = "https://cronitor.io/v3"
+var MONITOR_API_URL = "https://cronitor.io/v3/monitors"
 var PING_API_URL = "https://cronitor.link"
 
-/* istanbul ignore next: not testing https module */
-var noop = function () {}
-
-// module.exports = function (authKey) {
-//   return {
-//     run: function (id) {
-//       var urlObj = buildUrlObj(cronitorUrl, 'run', id, authKey)
-//       getWithTimeout(buildUrl(urlObj))
-//     },
-//     complete: function (id) {
-//       var urlObj = buildUrlObj(cronitorUrl, 'complete', id, authKey)
-//       getWithTimeout(buildUrl(urlObj))
-//     },
-//     pause: function (id, hours) {
-//       var urlObj = buildUrlObj(cronitorPauseUrl, 'pause', id, authKey)
-//       urlObj.basePath = urlObj.basePath + '/' + hours
-//       getWithTimeout(buildUrl(urlObj))
-//     },
-//     fail: function (id, msg) {
-//       var urlObj = buildUrlObj(cronitorUrl, 'fail', id, authKey)
-//       if (msg) {
-//         if (!urlObj.qs) {
-//           urlObj.qs = {}
-//         }
-//         urlObj.qs.msg = msg
-//       }
-//       getWithTimeout(buildUrl(urlObj))
-//     }
-//   }
-// }
-
-
-function CronitorClient(options) {
+function Cronitor(options) {
   var defaults = options || {}
   if (!defaults.monitorApiKey && !defaults.code) {
     throw Error("You must supply a monitorCode or monitorApiKey to initialize cronitor.")
@@ -47,39 +15,6 @@ function CronitorClient(options) {
   this.authHeader = new Buffer(this.monitorApiKey + ':').toString('base64')
 }
 
-// /*****
-// * Create new monitor on cronitor.io
-// *
-// * @params {Object}  cron objects
-// * @params {Callback} Callback (error, body)
-// *
-// */
-
-// CronitorClient.prototype.test = function(callback) {
-
-// 	var options = {
-// 		url: MONITOR_API_URL,
-// 		port: 443,
-// 		headers: {
-// 			'Authorization': 'Basic ' + this.authHeader
-// 		}
-// 	}
-
-// 	request(options, function(err, res, body) {
-// 				if (err) {
-// 					callback(err, null)
-// 				} else {
-// 					if( res.statusCode === 403){
-// 						debug("Access key invalid or absent")
-// 						err = body
-// 						body = null
-// 					}
-// 				}
-// 				callback(err,body)
-
-// 		})
-
-// }
 
 /****
 * Create new monitor
@@ -88,23 +23,17 @@ function CronitorClient(options) {
 * @returns {Callback} callback (err, body)
 *
 */
-CronitorClient.prototype.create = function(obj, callback) {
+Cronitor.prototype.create = function(obj, callback) {
   if (!this.monitorApiKey) {
-    // TODO setter for apiKey
-    throw Error("You must set a monitorApiKey to create a new monitor.")
+    throw Error("You must provide a monitorApiKey to create a monitor.")
   }
-	var options = {
-		method: 'POST',
-		url: MONITOR_API_URL,
-		port: 443,
-		headers: {
-			'Authorization': 'Basic ' + this.authHeader
-			},
-		body: obj,
-		json: true
-	}
 
-	request(options, function(err, res, body) {
+	var params = requestParams.call(this, {
+		url: MONITOR_API_URL,
+		body: obj,
+	})
+
+	request.post(params, function(err, res, body) {
     if (res.statusCode !== 201) {
       callback(body, null)
     } else {
@@ -120,39 +49,31 @@ CronitorClient.prototype.create = function(obj, callback) {
 * @returns {Object} Array of monitors
 *
 */
-CronitorClient.prototype.all = function(filter, cb) {
-  if (!this.monitorApiKey) {
-    // TODO setter for apiKey
-    throw Error("You must provide a monitorApiKey to list all your monitors.")
-  }
-	var params = {}
+Cronitor.prototype.all = function(filter, cb) {
+	var qParams = {}
 	var callback = null
 	var args = Array.prototype.slice.call(arguments)
 
-	if( args.length === 1) {
+	if( args.length === 1)
 		callback = args[0]
-	} else {
-		params = args[0]
+	else
+		qParams = args[0]
 		callback = args[1]
-	}
 
-	var options = {
-		method: 'GET',
+  if (!this.monitorApiKey) {
+    throw Error("You must provide a monitorApiKey to list all your monitors.")
+  }
+
+  var params = requestParams.call(this, {
 		url: MONITOR_API_URL,
-		port: 443,
-		headers: {
-			'Authorization': 'Basic ' + this.authHeader
-			},
-		json: true,
-		qs: params
-	}
+		qs: qParams,
+	})
 
-	request(options, function(err, res, body){
-    if (res.statusCode !== 200){
+	request.get(params, function(err, res, body) {
+    if (res.statusCode !== 200)
       callback(body, null)
-    } else {
+    else
       callback(err, body)
-    }
   })
 }
 
@@ -164,35 +85,25 @@ CronitorClient.prototype.all = function(filter, cb) {
 * @return {Object} monitor
 */
 
-CronitorClient.prototype.get = function(monitorCode, cb) {
+Cronitor.prototype.get = function(monitorCode, cb) {
   var args = Array.prototype.slice.call(arguments)
   var callback = null
   var code = this.monitorCode
-
-  if (!this.monitorApiKey) {
-    // TODO setter for apiKey
-    throw Error("You must provide a monitorApiKey to retrieve a monitor.")
-  }
-
-	if( args.length === 1) {
+  if( args.length === 1) {
 		callback = args[0]
-	} else {
+  } else {
 		code = args[0]
 		callback = args[1]
   }
 
-	var options = {
-		method: 'GET',
-		url: MONITOR_API_URL + '/' + code,
-		port: 443,
-		headers: {
-			'Authorization': 'Basic ' + this.authHeader
-			},
-		json: true
-	}
+  if (!this.monitorApiKey)
+    throw Error("You must provide a monitorApiKey to retrieve a monitor.")
+  if (!code)
+    throw Error("You must provide a monitor code to retrieve a monitor.")
 
-	request(options, function(err, res, body) {
-    if( res.statusCode !== 200){
+  var params = requestParams.call(this, {url: MONITOR_API_URL + '/' + code})
+	request.get(params, function(err, res, body) {
+    if( res.statusCode !== 200) {
       callback(body, null)
     } else {
       callback(err, body)
@@ -209,16 +120,10 @@ CronitorClient.prototype.get = function(monitorCode, cb) {
 * @return {Callback} Callback object with result or error
 */
 
-CronitorClient.prototype.update = function(monitorCode, obj, cb) {
+Cronitor.prototype.update = function(monitorCode, obj, cb) {
   var code, body, callback
   var args = Array.prototype.slice.call(arguments)
-
-  if (!this.monitorApiKey) {
-    // TODO setter for apiKey
-    throw Error("You must provide a monitorApiKey to update a monitor.")
-  }
-
-	if( args.length === 3) {
+  if( args.length === 3) {
     code = args[0]
     body = args[1]
 		callback = args[2]
@@ -228,23 +133,22 @@ CronitorClient.prototype.update = function(monitorCode, obj, cb) {
 		callback = args[1]
   }
 
-	var options = {
-		method: 'PUT',
-		url: MONITOR_API_URL + '/' + code,
-		port: 443,
-		headers: {
-			'Authorization': 'Basic ' + this.authHeader
-			},
-		body: body,
-		json: true
-	}
+  if (!this.monitorApiKey)
+    throw Error("You must provide a monitorApiKey to update a monitor.")
+  if (!code)
+    throw Error("You must provide a monitor code to update a monitor.")
 
-	request(options, function(err, res, body) {
-    if(res.statusCode !== 200) {
+
+	var params = requestParams.call(this, {
+		url: MONITOR_API_URL + '/' + code,
+		body: body,
+	})
+
+	request.put(params, function(err, res, body) {
+    if(res.statusCode !== 200)
       callback(body, null)
-    } else {
+    else
       callback(err, body)
-    }
   })
 }
 
@@ -255,42 +159,33 @@ CronitorClient.prototype.update = function(monitorCode, obj, cb) {
 * @return { Callback } Callback
 */
 
-CronitorClient.prototype.delete = function(monitorCode, cb) {
+Cronitor.prototype.delete = function(monitorCode, cb) {
   var args = Array.prototype.slice.call(arguments)
   var callback = null
   var code = this.monitorCode
-
-  if (!this.monitorApiKey) {
-    // TODO setter for apiKey
-    throw Error("You must provide a monitorApiKey to delete a monitor.")
-  }
-
-	if( args.length === 1) {
+  if( args.length === 1) {
 		callback = args[0]
-	} else {
+  } else {
 		code = args[0]
 		callback = args[1]
   }
 
-	var options = {
-		method: 'DELETE',
-		url: MONITOR_API_URL + '/' + this.monitorCode,
-		port: 443,
-		headers: {
-			'Authorization': 'Basic ' + this.authHeader
-		},
-		json: true
-	}
+  if (!this.monitorApiKey)
+    throw Error("You must provide a monitorApiKey to delete a monitor.")
+  if (!code)
+    throw Error("You must provide a monitor code to delete a monitor.")
 
-	request(options, function(err, res, body) {
-    if( res.statusCode !== 204) {
+  var params = requestParams.call(this, {url: MONITOR_API_URL + '/' + code})
+	request.delete(params, function(err, res, body) {
+    if( res.statusCode !== 204)
       callback(body, null)
-    } else {
-      this.monitorCode = null
+    else
+      if (code == this.monitorCode)
+        this.monitorCode = null
       callback(err, body)
-    }
   })
 }
+
 
 
 /** PING API **/
@@ -303,7 +198,7 @@ CronitorClient.prototype.delete = function(monitorCode, cb) {
 * @params { String } message
 */
 
-CronitorClient.prototype.run = function(message) {
+Cronitor.prototype.run = function(message) {
   var finalURL = buildUrl(buildUrlObj(PING_API_URL, 'run', this.monitorCode, message, this.authKey))
   request.get(finalURL)
 }
@@ -316,7 +211,7 @@ CronitorClient.prototype.run = function(message) {
 * @params { String } message
 */
 
-CronitorClient.prototype.complete = function(message) {
+Cronitor.prototype.complete = function(message) {
   var finalURL = buildUrl(buildUrlObj(PING_API_URL, 'complete', this.monitorCode, message, this.authKey))
   request.get(finalURL)
 }
@@ -328,7 +223,7 @@ CronitorClient.prototype.complete = function(message) {
 * @params { String} monitor code
 * @params { String } message
 */
-CronitorClient.prototype.fail = function(message) {
+Cronitor.prototype.fail = function(message) {
   var finalURL = buildUrl(buildUrlObj(PING_API_URL, 'fail', this.monitorCode, message, this.authKey))
 	request.get(finalURL)
 }
@@ -340,7 +235,7 @@ CronitorClient.prototype.fail = function(message) {
 * @return { Callback } Callback
 */
 
-CronitorClient.prototype.pause = function(time) {
+Cronitor.prototype.pause = function(time) {
   if (!this.monitorCode) new Error("No monitor ")
   var pauseURL = PING_API_URL + '/' + this.monitorCode + '/pause/' + time
   if (this.authKey) pauseURL += '?auth_key=' + this.authKey
@@ -353,13 +248,11 @@ CronitorClient.prototype.pause = function(time) {
 * @params { String} monitor code
 */
 
-CronitorClient.prototype.unpause = function() {
+Cronitor.prototype.unpause = function() {
   var pauseURL = PING_API_URL + '/' + this.monitorCode + '/pause/0'
   if (this.authKey) pauseURL += '?auth_key=' + this.authKey
   request.get(pauseURL)
 }
-
-
 
 function buildUrlObj (baseUrl, action, code, msg, authKey) {
   var urlObj = {
@@ -384,5 +277,20 @@ function buildUrl (urlObj) {
   return url
 }
 
+var requestParams = function(params) {
+  var params = params || {}
+  var defaults = {
+    port: 443,
+    headers: {
+      'Authorization': 'Basic ' + this.authHeader
+    },
+    json: true
+  }
+  for (var attr in defaults) params[attr] = defaults[attr]
 
-module.exports = CronitorClient
+  return params
+}
+
+
+
+module.exports = Cronitor
