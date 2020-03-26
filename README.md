@@ -16,7 +16,7 @@ This library provides a simple abstraction for performing monitor CRUD operation
 
 ### Ping an existing monitor
 ```javascript
-import Cronitor from 'cronitor'
+var Cronitor = require('cronitor')
 
 // create new object with monitor's unique code
 const cronitor = new Cronitor({code: 'd3x0c1'})
@@ -36,7 +36,7 @@ cronitor.run("My auth key is used to authenticate requests")
 ### Create a new monitor
 
 ```javascript
-import Cronitor from 'cronitor'
+var Cronitor = require('cronitor')
 
 // instantiate with a monitorApiKey (https://cronitor.io/settings#account)
 const cronitor = new Cronitor({monitorApiKey: 'xxxxxx'})
@@ -86,7 +86,7 @@ cronitor.create({
 
 ```javascript
 
-import Cronitor from 'cronitor'
+var Cronitor = require('cronitor')
 const cronitor = new Cronitor({monitorApiKey: 'xxxxxx', code: 'd3x0c1'})
 
 // Update existing attributes on a monitor
@@ -126,7 +126,7 @@ Set up your machine:
 Make sure the tests pass:
 
     npm test
-
+    
 Make your change. Add tests for your change. Make the tests pass:
 
     npm test
