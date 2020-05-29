@@ -1,8 +1,8 @@
 {
   "name": "cronitor",
-  "version": "1.0.0",
-  "description": "A small library to make easy to work with Cronitor's Monitor and Ping APIs",
-  "main": "index.js",
+  "version": "2.0.0",
+  "description": "A small library for reliably monitoring cron jobs, control-loops, or other important system events with Cronitor.",
+  "main": "lib/cronitor.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/cronitorio/cronitor-js.git"
@@ -10,7 +10,7 @@
   "scripts": {
     "test": "mocha -R spec --ui bdd",
     "cover": "istanbul cover _mocha",
-    "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | coveralls"
+    "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | ./node_modules/.bin/codecov --pipe"
   },
   "files": [
     "index.js"
@@ -23,15 +23,22 @@
   "author": "aflanagan",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.19.2"
+    "axios": "^0.19.2",
+    "js-yaml": "^3.14.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",
+    "codecov": "3.7.0",
     "coveralls": "^3.0.11",
     "istanbul": "^0.4.3",
     "mocha": "^7.1.1",
     "mocha-lcov-reporter": "^1.2.0",
     "nock": "12.0.3",
-    "sinon": "^1.17.2"
+    "rss-parser": "^3.8.0",
+    "sinon": "^9.2.2",
+    "sinon-chai": "^3.5.0",
+    "sinon-stub-promise": "^4.0.0",
+    "cron": "^1.8.2",
+    "node-cron": "^2.0.3"
   }
 }
