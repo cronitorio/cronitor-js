@@ -4,7 +4,7 @@
 
 Cronitor is a service for heartbeat-style monitoring of anything that can send an HTTP request. It's particularly well suited for monitoring cron jobs, node-cron, or any other background task.
 
-This library provides a simple abstraction for performing monitor CRUD operations as well as light weight interface for integrating cronitor into your Javascript project. For a better understanding of the APIs this library talks to please see our [Ping API docs](https://cronitor.io/docs/ping-api) and [Monitor API docs](https://cronitor.io/docs/monitor-api). For a general introduction to Cronitor please read [How Cronitor Works](https://cronitor.io/docs/how-cronitor-works).
+This library provides a simple abstraction for performing monitor CRUD operations as well as light weight interface for integrating cronitor into your Javascript project. For a better understanding of the APIs this library talks to please see our [Ping API docs](https://cronitor.io/docs/ping-api) and [Monitor API docs](https://cronitor.io/docs/monitor-api). For a general introduction to Cronitor, please read our [Cron Setup Guide](https://cronitor.io/docs/cron-job-monitoring).
 
 ## Installation
 
