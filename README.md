@@ -1,8 +1,6 @@
 # Cronitor Ping and Monitor API Client
 
-[![Travis Build](https://img.shields.io/travis/bigethan/cronitor-caller/master.svg)](https://travis-ci.org/bigethan/cronitor-caller)
-[![Coveralls](https://img.shields.io/coveralls/bigethan/cronitor-caller/master.svg)](https://coveralls.io/github/bigethan/cronitor-caller?branch=master)
-![dependencies](https://img.shields.io/badge/dependencies-NONE!-brightgreen.svg)
+[![Build Status](https://travis-ci.org/cronitorio/cronitor-js.svg?branch=master)](https://travis-ci.org/cronitorio/cronitor-js)
 
 Cronitor is a service for heartbeat-style monitoring of anything that can send an HTTP request. It's particularly well suited for monitoring cron jobs, node-cron, or any other background task.
 
@@ -126,7 +124,7 @@ Set up your machine:
 Make sure the tests pass:
 
     npm test
-    
+
 Make your change. Add tests for your change. Make the tests pass:
 
     npm test
