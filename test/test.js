@@ -53,14 +53,14 @@ describe('Ping API', function() {
         done()
       })
 
-      it('calls run correctly', function(done) {
+      it(`calls ${endpoint} correctly`, function(done) {
         cronitor[endpoint]().then((res) => {
           expect(res.status).to.eq(200)
           done()
         })
       })
 
-      it('calls run correctly with message', function(done) {
+      it(`calls ${endpoint} correctly with message`, function(done) {
         cronitor[endpoint](msg).then((res) => {
           expect(res.status).to.eq(200)
           expect(res.config.url).to.contain(`?msg=a%20message`)
@@ -68,7 +68,7 @@ describe('Ping API', function() {
         })
       })
 
-      it('authed calls run correctly', function(done) {
+      it(`authed calls ${endpoint} correctly`, function(done) {
         cronitorAuthed[endpoint]().then((res) => {
           expect(res.status).to.eq(200)
           expect(res.config.url).to.contain(`?auth_key=${authKey}`)
