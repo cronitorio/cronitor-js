@@ -1,11 +1,9 @@
-var querystring = require('querystring')
 var nock = require('nock')
 var chai = require('chai')
 
 var Cronitor = require('../index')
 var expect = chai.expect
 var authKey = '12345'
-var authQs = '?auth_key=' + authKey
 var msg = 'a message'
 var timestamp = Date.now() / 1000;
 var dummyCode = 'd3x0c1'
@@ -248,9 +246,6 @@ if (process.env.MONITOR_API_KEY) {
   })
 } else {
   describe("Monitor API ", function() {
-    var existingMonitorCode = null
-    var cronitor = null
-
     describe("Create Monitor", function() {
       context("with a valid monitorApiKey", function() {
         var cronitor = new Cronitor({monitorApiKey: monitorApiKey})
