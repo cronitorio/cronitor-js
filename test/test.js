@@ -1,12 +1,11 @@
-var querystring = require('querystring')
 var nock = require('nock')
 var chai = require('chai')
 
 var Cronitor = require('../index')
 var expect = chai.expect
 var authKey = '12345'
-var authQs = '?auth_key=' + authKey
 var msg = 'a message'
+var timestamp = Date.now() / 1000;
 var dummyCode = 'd3x0c1'
 var baseUrl = 'https://cronitor.link'
 var monitorApiKey = '1337hax0r'
@@ -42,10 +41,12 @@ describe('Ping API', function() {
   endpoints.forEach((endpoint) => {
     context(`${endpoint.toUpperCase()} Endpoint`, function() {
       beforeEach(function(done) {
-        nock('https://cronitor.link')
+        nock(baseUrl)
           .get(`/${dummyCode}/${endpoint}`)
           .reply(200)
           .get(`/${dummyCode}/${endpoint}?msg=${msg}`)
+          .reply(200)
+          .get(/.+(\&stamp=)\d+(\.\d+)?$/)
           .reply(200)
           .get(`/${dummyCode}/${endpoint}?auth_key=${authKey}`)
           .reply(200)
@@ -53,14 +54,14 @@ describe('Ping API', function() {
         done()
       })
 
-      it('calls run correctly', function(done) {
+      it(`calls ${endpoint} correctly`, function(done) {
         cronitor[endpoint]().then((res) => {
           expect(res.status).to.eq(200)
           done()
         })
       })
 
-      it('calls run correctly with message', function(done) {
+      it(`calls ${endpoint} correctly with message`, function(done) {
         cronitor[endpoint](msg).then((res) => {
           expect(res.status).to.eq(200)
           expect(res.config.url).to.contain(`?msg=a%20message`)
@@ -68,7 +69,15 @@ describe('Ping API', function() {
         })
       })
 
-      it('authed calls run correctly', function(done) {
+      it(`calls ${endpoint} correctly with stamp`, function(done) {
+        cronitor[endpoint](msg, true).then((res) => {
+          expect(res.status).to.eq(200)
+          expect(res.config.url).to.match(/.+(\&stamp=)\d+(\.\d+)?$/)
+          done()
+        })
+      })
+
+      it(`authed calls ${endpoint} correctly`, function(done) {
         cronitorAuthed[endpoint]().then((res) => {
           expect(res.status).to.eq(200)
           expect(res.config.url).to.contain(`?auth_key=${authKey}`)
@@ -80,7 +89,7 @@ describe('Ping API', function() {
 
   context("Pause Endpoint", function() {
     it('calls pause correctly', function(done) {
-      nock('https://cronitor.link')
+      nock(baseUrl)
           .get(`/${dummyCode}/pause/5`)
           .reply(200)
 
@@ -91,7 +100,7 @@ describe('Ping API', function() {
     })
 
     it('calls unpause correctly', function(done) {
-      nock('https://cronitor.link')
+      nock(baseUrl)
           .get(`/${dummyCode}/pause/0`)
           .reply(200)
 
@@ -102,7 +111,7 @@ describe('Ping API', function() {
     })
 
     it('authed calls pause correctly', function(done) {
-      nock('https://cronitor.link')
+      nock(baseUrl)
          .get(`/${dummyCode}/pause/5?auth_key=${authKey}`)
           .reply(200)
 
@@ -113,7 +122,7 @@ describe('Ping API', function() {
     })
 
     it('authed calls unpause correctly', function(done) {
-      nock('https://cronitor.link')
+      nock(baseUrl)
           .get(`/${dummyCode}/pause/0?auth_key=${authKey}`)
           .reply(200)
       cronitorAuthed.unpause().then((res) => {
@@ -237,9 +246,6 @@ if (process.env.MONITOR_API_KEY) {
   })
 } else {
   describe("Monitor API ", function() {
-    var existingMonitorCode = null
-    var cronitor = null
-
     describe("Create Monitor", function() {
       context("with a valid monitorApiKey", function() {
         var cronitor = new Cronitor({monitorApiKey: monitorApiKey})
