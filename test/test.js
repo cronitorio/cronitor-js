@@ -43,7 +43,7 @@ describe('Ping API', function() {
   endpoints.forEach((endpoint) => {
     context(`${endpoint.toUpperCase()} Endpoint`, function() {
       beforeEach(function(done) {
-        nock('https://cronitor.link')
+        nock(baseUrl)
           .get(`/${dummyCode}/${endpoint}`)
           .reply(200)
           .get(`/${dummyCode}/${endpoint}?msg=${msg}`)
@@ -91,7 +91,7 @@ describe('Ping API', function() {
 
   context("Pause Endpoint", function() {
     it('calls pause correctly', function(done) {
-      nock('https://cronitor.link')
+      nock(baseUrl)
           .get(`/${dummyCode}/pause/5`)
           .reply(200)
 
@@ -102,7 +102,7 @@ describe('Ping API', function() {
     })
 
     it('calls unpause correctly', function(done) {
-      nock('https://cronitor.link')
+      nock(baseUrl)
           .get(`/${dummyCode}/pause/0`)
           .reply(200)
 
@@ -113,7 +113,7 @@ describe('Ping API', function() {
     })
 
     it('authed calls pause correctly', function(done) {
-      nock('https://cronitor.link')
+      nock(baseUrl)
          .get(`/${dummyCode}/pause/5?auth_key=${authKey}`)
           .reply(200)
 
@@ -124,7 +124,7 @@ describe('Ping API', function() {
     })
 
     it('authed calls unpause correctly', function(done) {
-      nock('https://cronitor.link')
+      nock(baseUrl)
           .get(`/${dummyCode}/pause/0?auth_key=${authKey}`)
           .reply(200)
       cronitorAuthed.unpause().then((res) => {
