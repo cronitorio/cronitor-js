@@ -7,6 +7,7 @@ var expect = chai.expect
 var authKey = '12345'
 var authQs = '?auth_key=' + authKey
 var msg = 'a message'
+var timestamp = Date.now() / 1000;
 var dummyCode = 'd3x0c1'
 var baseUrl = 'https://cronitor.link'
 var monitorApiKey = '1337hax0r'
@@ -47,6 +48,8 @@ describe('Ping API', function() {
           .reply(200)
           .get(`/${dummyCode}/${endpoint}?msg=${msg}`)
           .reply(200)
+          .get(/.+(\&stamp=)\d+(\.\d+)?$/)
+          .reply(200)
           .get(`/${dummyCode}/${endpoint}?auth_key=${authKey}`)
           .reply(200)
 
@@ -64,6 +67,14 @@ describe('Ping API', function() {
         cronitor[endpoint](msg).then((res) => {
           expect(res.status).to.eq(200)
           expect(res.config.url).to.contain(`?msg=a%20message`)
+          done()
+        })
+      })
+
+      it(`calls ${endpoint} correctly with stamp`, function(done) {
+        cronitor[endpoint](msg, true).then((res) => {
+          expect(res.status).to.eq(200)
+          expect(res.config.url).to.match(/.+(\&stamp=)\d+(\.\d+)?$/)
           done()
         })
       })

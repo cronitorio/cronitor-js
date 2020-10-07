@@ -230,9 +230,9 @@ Cronitor.prototype.delete = function() {
 * @return { Promise } Promise object
 */
 
-Cronitor.prototype.run = function(message) {
+Cronitor.prototype.run = function(message, includeTimestamp) {
   validateMonitorCode.call(this)
-  var finalURL = buildUrl(buildUrlObj(PING_API_URL, 'run', this.monitorCode, message, this.authKey))
+  var finalURL = buildUrl(buildUrlObj(PING_API_URL, 'run', this.monitorCode, message, this.authKey, includeTimestamp))
   return axios.get(finalURL)
 }
 
@@ -244,9 +244,9 @@ Cronitor.prototype.run = function(message) {
 * @return { Promise } Promise object
 */
 
-Cronitor.prototype.complete = function(message) {
+Cronitor.prototype.complete = function(message, includeTimestamp) {
   validateMonitorCode.call(this)
-  var finalURL = buildUrl(buildUrlObj(PING_API_URL, 'complete', this.monitorCode, message, this.authKey))
+  var finalURL = buildUrl(buildUrlObj(PING_API_URL, 'complete', this.monitorCode, message, this.authKey, includeTimestamp))
   return axios.get(finalURL)
 }
 
@@ -257,9 +257,9 @@ Cronitor.prototype.complete = function(message) {
 * @params { String } message
 * @return { Promise } Promise object
 */
-Cronitor.prototype.fail = function(message) {
+Cronitor.prototype.fail = function(message, includeTimestamp) {
   validateMonitorCode.call(this)
-  var finalURL = buildUrl(buildUrlObj(PING_API_URL, 'fail', this.monitorCode, message, this.authKey))
+  var finalURL = buildUrl(buildUrlObj(PING_API_URL, 'fail', this.monitorCode, message, this.authKey, includeTimestamp))
 	return axios.get(finalURL)
 }
 
@@ -299,7 +299,7 @@ function validateMonitorApiKey() {
     new Error("You must initialize cronitor with a monitorApiKey to call this method.")
 }
 
-function buildUrlObj (baseUrl, action, code, msg, authKey) {
+function buildUrlObj (baseUrl, action, code, msg, authKey, includeTimestamp) {
   var urlObj = {
     basePath: baseUrl + '/' + code + '/' + action,
   }
@@ -312,6 +312,9 @@ function buildUrlObj (baseUrl, action, code, msg, authKey) {
     if (msg) {
       urlObj.qs.msg = msg
     }
+    if (includeTimestamp) {
+      urlObj.qs.stamp = generateTimestamp()
+    }
   }
 
   return urlObj
@@ -320,6 +323,10 @@ function buildUrlObj (baseUrl, action, code, msg, authKey) {
 function buildUrl(urlObj) {
   var url = urlObj.basePath + (urlObj.qs ? '?' + querystring.stringify(urlObj.qs) : '')
   return url
+}
+
+function generateTimestamp() {
+  return Date.now() / 1000
 }
 
 
