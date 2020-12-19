@@ -1,6 +1,6 @@
 # Cronitor Node Library
 
-[![Build Status](https://travis-ci.org/cronitorio/cronitor-js.svg?branch=master)](https://travis-ci.org/cronitorio/cronitor-js) [![codecov](https://codecov.io/gh/cronitorio/cronitor-js/branch/2.0.0/graph/badge.svg)](https://codecov.io/gh/cronitorio/cronitor-js)
+![Tests](https://github.com/cronitorio/cronitor-js/workflows/Tests/badge.svg)
 
 [Cronitor](https://cronitor.io/) provides dead simple monitoring for cron jobs, daemons, data pipelines, queue workers, and anything else that can send or receive an HTTP request. The Cronitor Node library provides convenient access to the Cronitor API from applications written in server-side JavaScript.
 
