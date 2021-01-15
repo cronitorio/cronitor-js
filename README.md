@@ -54,7 +54,7 @@ cron.schedule('SendWelcomeEmail', '*/5 * * * *', function() {
 ```
 
 ### Monitor Async Functions
-Cronitor can wrap any function with telemetry pings as well, and can be used with any node system.
+Cronitor can wrap any function with telemetry pings as well, and can be used by any node project.
 
 ```javascript
 const cronitor = require('cronitor')('cronitor_api_key');
