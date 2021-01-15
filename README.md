@@ -179,7 +179,7 @@ const uptimeMonitor = cronitor.Monitor.put({
 
 You can also manage all of your monitors via a YAML config file.
 This can be version controlled and synced to Cronitor as part of
-a deployment pipeline or system update.
+a deployment or build process.
 
 ```javascript
 const cronitor = require('cronitor')('apiKey123');
