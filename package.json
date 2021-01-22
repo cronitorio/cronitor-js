@@ -1,6 +1,6 @@
 {
   "name": "cronitor",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "A small library for reliably monitoring cron jobs, control-loops, or other important system events with Cronitor.",
   "main": "lib/cronitor.js",
   "repository": {
