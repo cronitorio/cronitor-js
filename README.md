@@ -54,7 +54,7 @@ cron.schedule('SendWelcomeEmail', '*/5 * * * *', function() {
 ```
 
 ### Monitor Async Functions
-Cronitor can wrap any function with telemetry pings as well, and can be used with any node system.
+Cronitor can wrap any function with telemetry pings as well, and can be used by any node project.
 
 ```javascript
 const cronitor = require('cronitor')('cronitor_api_key');
@@ -179,7 +179,7 @@ const uptimeMonitor = cronitor.Monitor.put({
 
 You can also manage all of your monitors via a YAML config file.
 This can be version controlled and synced to Cronitor as part of
-a deployment pipeline or system update.
+a deployment or build process.
 
 ```javascript
 const cronitor = require('cronitor')('apiKey123');
