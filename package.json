@@ -1,6 +1,6 @@
 {
   "name": "cronitor",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "A small library for reliably monitoring cron jobs, control-loops, or other important system events with Cronitor.",
   "main": "lib/cronitor.js",
   "repository": {
@@ -17,7 +17,7 @@
     "cron jobs",
     "cron monitoring"
   ],
-  "author": "aflanagan",
+  "author": "August Flanagan august@cronitor.io",
   "license": "MIT",
   "dependencies": {
     "axios": "^0.21.1",
