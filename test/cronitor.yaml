@@ -6,14 +6,14 @@ jobs:
     welcome-email:
         schedule: 'every 10 minutes'
 
-synthetics:
+checks:
     cronitor-homepage:
         request:
             url: 'https://cronitor.io'
         assertions:
             - 'response.time < 2s'
 
-events:
+heartbeats:
     production-deploy:
         notify:
             alerts:
