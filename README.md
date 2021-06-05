@@ -46,7 +46,7 @@ Cronitor can wrap any function with telemetry pings.
 ```javascript
 const cronitor = require('cronitor')('cronitor_api_key');
 
-let asyncWorker = cronitor.wrap(async function() {
+let asyncWorker = cronitor.wrap('background-worker', async function() {
     // do some async work
 });
 
