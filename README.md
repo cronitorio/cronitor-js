@@ -188,7 +188,7 @@ You can also create and update monitors by calling `Monitor.put`. For details on
 ```javascript
 const cronitor = require('cronitor')('apiKey123');
 
-const jobMonitor = cronitor.Monitor.put({
+const jobMonitor = await cronitor.Monitor.put({
     type: 'job',
     key: 'send-customer-invoices',
     schedule: '0 0 * * *',
@@ -198,7 +198,7 @@ const jobMonitor = cronitor.Monitor.put({
     notify: ['devops-alerts-slack']
 });
 
-const uptimeMonitor = cronitor.Monitor.put({
+const uptimeMonitor = await cronitor.Monitor.put({
     type: 'check',
     key: 'Cronitor Homepage',
     schedule: 'every 45 seconds',
