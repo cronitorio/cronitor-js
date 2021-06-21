@@ -11,7 +11,7 @@ In this guide:
 - [Sending Telemetry Events](#sending-telemetry-events)
 - [Configuring Monitors](#configuring-monitors)
 - [Package Configuration & Env Vars](#package-configuration)
-- [Command Line Usage](#command-line-usage)
+
 
 ## Installation
 ```
