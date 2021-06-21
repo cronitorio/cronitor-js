@@ -98,7 +98,7 @@ oncon
 app.start();
 ```
 
-## Sending Telemetry Pings
+## Sending Telemetry Events
 
 If you want to send a heartbeat events, or want finer control over when/how [telemetry events](https://cronitor.io/docs/telemetry-api) are sent for your jobs, you can create a monitor instance and call the `.ping` method.
 
