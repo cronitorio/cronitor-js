@@ -103,7 +103,6 @@ app.start();
 If you want to send a heartbeat events, or want finer control over when/how [telemetry events](https://cronitor.io/docs/telemetry-api) are sent for your jobs, you can create a monitor instance and call the `.ping` method.
 
 ```javascript
-// if authenticated pings are enabled, add your apiKey when creating a Ping object
 const monitor = new cronitor.Monitor('heartbeat-monitor');
 
 // send a heartbeat event
