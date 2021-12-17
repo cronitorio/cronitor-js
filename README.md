@@ -135,6 +135,9 @@ cronitor.readConfig('./cronitor.yaml'); // parse the yaml file of monitors
 cronitor.validateConfig(); // send monitors to Cronitor for configuration validation
 
 cronitor.applyConfig(); // sync the monitors from the config file to Cronitor
+
+cronitor.generateConfig(); // generate a new config file from the Cronitor API
+
 ```
 
 The `cronitor.yaml` file includes three top level keys `jobs`, `checks`, `heartbeats`. You can configure monitors under each key by defining [monitors](https://cronitor.io/docs/monitor-api#attributes).
