@@ -1,7 +1,6 @@
 const { config } = require('process')
 
-const querystring = require('querystring')
-, Monitor = require('../lib/monitor')
+const Monitor = require('../lib/monitor')
 , Errors = require('../lib/errors')
 , nock = require('nock')
 , chai = require('chai')
@@ -102,12 +101,11 @@ describe('Telemetry API', function() {
                 let pingStub = sinon.stub(cronitor._api.axios, 'get')
                 monitor.ping({state, ...validParams})
 
-                let pingParams = Object.assign({}, {state, ...validParams})
-                delete pingParams.metrics
+                let params = Object.assign({}, {state, ...validParams})
 
                 expect(pingStub).to.be.calledWith(
                     monitor._api.pingUrl(monitor.key),
-                    { params: {...pingParams, stamp: sinon.match.any, metric: sinon.match.any}})
+                    { params, paramsSerializer: sinon.match.any})
                 done()
             })
         })
