@@ -50,7 +50,7 @@ let asyncWorker = cronitor.wrap('background-worker', async function() {
     // do some async work
 });
 
-// cronitor will track the start time and the end time (promise resolved or rejected)
+// cronitor will track the start and end time and state (promise resolved or rejected).
 await asyncWorker();
 ```
 
