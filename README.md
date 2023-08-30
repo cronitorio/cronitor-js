@@ -227,14 +227,17 @@ monitor.delete() // destroy the monitor
 
 ## Package Configuration
 
-The package needs to be configured with your account's `API key`, which is available on the [account settings](https://cronitor.io/settings) page. You can also optionally specify an `api_version` and an `environment`. If not provided, your account default is used. These can also be supplied using the environment variables `CRONITOR_API_KEY`, `CRONITOR_API_VERSION`, `CRONITOR_ENVIRONMENT`.
+The package needs to be configured with your account's `API key`, which is available on the [account settings](https://cronitor.io/settings) page. You can also optionally specify an `api_version`, an `environment`, and a request `timeout`. 
+
+These can also be supplied using the environment variables `CRONITOR_API_KEY`, `CRONITOR_API_VERSION`, `CRONITOR_ENVIRONMENT`, `CRONITOR_TIMEOUT`.
 
 ```javascript
 const cronitor = require('cronitor')(
     'cronitor_api_key', 
     {
         apiVersion: '2020-10-01', 
-        environment: 'staging'
+        environment: 'staging',
+        timeout: 5000
     });
 ```
 
