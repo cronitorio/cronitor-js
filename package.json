@@ -3,6 +3,7 @@
   "version": "2.3.4",
   "description": "A small library for reliably monitoring cron jobs, control-loops, or other important system events with Cronitor.",
   "main": "lib/cronitor.js",
+  "types": "lib/cronitor.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/cronitorio/cronitor-js.git"
