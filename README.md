@@ -1,6 +1,6 @@
 # Cronitor Node Library (updated axios & some quality fixes)
 
-![Tests](https://github.com/sefinek24/cronitor-js/workflows/Tests/badge.svg)
+![Tests](https://github.com/sefinek24/cronitor-js/workflows/Node.js%20CI/badge.svg)
 
 [Cronitor](https://cronitor.io/) provides end-to-end monitoring for background jobs, websites, APIs, and anything else that can send or receive an HTTP request. This library provides convenient access to the Cronitor API from applications written in Javascript. See our [API docs](https://cronitor.io/docs/api) for detailed references on configuring monitors and sending telemetry pings.
 
