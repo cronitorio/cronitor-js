@@ -5,7 +5,7 @@
   "main": "lib/cronitor.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/cronitorio/cronitor-js.git"
+    "url": "https://github.com/sefinek24/cronitor-js.git"
   },
   "scripts": {
     "test": "mocha -R spec --ui bdd",
