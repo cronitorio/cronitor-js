@@ -1,5 +1,5 @@
 {
-  "name": "cronitor",
+  "name": "@sefinek/cronitor",
   "version": "2.3.4",
   "description": "A small library for reliably monitoring cron jobs, control-loops, or other important system events with Cronitor.",
   "main": "lib/cronitor.js",
