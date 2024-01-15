@@ -1,4 +1,3 @@
-const axios = require('axios');
 const Parser = require('rss-parser');
 const cronitor = require('../lib/cronitor')('fakeApiKey');
 const parser = new Parser();
@@ -33,4 +32,3 @@ function sendStatusAlert(status) {
 	// simulate network call
 	return new Promise(resolve => setTimeout(resolve, 100)).then(() => console.log(`New Incident! ${status}`));
 }
-

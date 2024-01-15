@@ -1,8 +1,4 @@
-const { config } = require('process');
-
 const Monitor = require('../lib/monitor'),
-	Errors = require('../lib/errors'),
-	nock = require('nock'),
 	chai = require('chai'),
 	sinon = require('sinon'),
 	sinonChai = require('sinon-chai'),
@@ -147,7 +143,7 @@ describe('Monitor', function() {
 	});
 });
 
-describe('Event', function(done) {
+describe('Event', function() {
 	let clock, event;
 
 	beforeEach(function() {
