@@ -10,7 +10,8 @@
   "scripts": {
     "test": "mocha -R spec --ui bdd",
     "cover": "istanbul cover _mocha",
-    "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | ./node_modules/.bin/codecov --pipe"
+    "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | ./node_modules/.bin/codecov --pipe",
+    "up": "ncu -u -x chai && npm install && npm update && npm audit fix"
   },
   "keywords": [
     "cronitor",
