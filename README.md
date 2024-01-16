@@ -15,9 +15,9 @@ In this guide:
 
 ## Installation
 ```
-npm install @sefinek/cronitor --save
+npm install cronitor --save
 # or
-yarn add @sefinek/cronitor
+yarn add cronitor
 ```
 
 
@@ -27,7 +27,7 @@ yarn add @sefinek/cronitor
 If you are using a library like [node-cron](https://github.com/node-cron/node-cron) or [cron](https://github.com/kelektiv/node-cron), this package provides a lightweight wrapper to enable easy monitoring integration.
 
 ```javascript
-const cron = require('@sefinek/cronitor')('cronitor_api_key');
+const cron = require('cronitor')('cronitor_api_key');
 const nodeCron = require('node-cron');
 
 cron.wraps(nodeCron);
@@ -44,7 +44,7 @@ cron.schedule('SendWelcomeEmail', '*/5 * * * *', function() {
 Cronitor can wrap any function with telemetry pings.
 
 ```javascript
-const cronitor = require('@sefinek/cronitor')('cronitor_api_key');
+const cronitor = require('cronitor')('cronitor_api_key');
 
 let asyncWorker = cronitor.wrap('background-worker', async function() {
     // do some async work
@@ -61,7 +61,7 @@ object to synchronously record loop ticks and asynchronously batch report these 
 The following example uses [sqs-consumer](https://github.com/bbc/sqs-consumer).
 
 ```javascript
-const cronitor = require('@sefinek/cronitor')('cronitor_api_key');
+const cronitor = require('cronitor')('cronitor_api_key');
 const { Consumer } = require('sqs-consumer');
 
 event = new cronitor.Event('monitor-key');
@@ -128,7 +128,7 @@ You can configure all of your monitors using a single YAML file. This can be ver
 a deployment or build process. For details on all of the attributes that can be set, see the [Monitor API](https://cronitor.io/docs/monitor-api) documentation.
 
 ```javascript
-const cronitor = require('@sefinek/cronitor')('apiKey123');
+const cronitor = require('cronitor')('apiKey123');
 
 cronitor.readConfig('./cronitor.yaml'); // parse the yaml file of monitors
 
@@ -188,7 +188,7 @@ heartbeats:
 You can also create and update monitors by calling `Monitor.put`. For details on all of the attributes that can be set see the Monitor API [documentation)(https://cronitor.io/docs/monitor-api#attributes).
 
 ```javascript
-const cronitor = require('@sefinek/cronitor')('apiKey123');
+const cronitor = require('cronitor')('apiKey123');
 
 const jobMonitor = await cronitor.Monitor.put({
     type: 'job',
@@ -232,7 +232,7 @@ The package needs to be configured with your account's `API key`, which is avail
 These can also be supplied using the environment variables `CRONITOR_API_KEY`, `CRONITOR_API_VERSION`, `CRONITOR_ENVIRONMENT`, `CRONITOR_TIMEOUT`.
 
 ```javascript
-const cronitor = require('@sefinek/cronitor')(
+const cronitor = require('cronitor')(
     'cronitor_api_key', 
     {
         apiVersion: '2020-10-01', 
