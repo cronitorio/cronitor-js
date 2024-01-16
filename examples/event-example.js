@@ -8,12 +8,13 @@ async function init() {
 	let currStatus = status = await checkGithubStatus();
 	while (true) {
 		status = await checkGithubStatus();
-		if (currStatus != status) {
-			sendStatusAlert(status);
+		if (currStatus !== status) {
+			await sendStatusAlert(status);
 			currStatus = status;
 		} else {
-			console.log('no new incident');
+			console.log('No new incident');
 		}
+
 		await sleep(1);
 		event.tick();
 	}
