@@ -5,20 +5,20 @@
   "main": "lib/cronitor.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sefinek24/cronitor-js.git"
+    "url": "https://github.com/cronitorio/cronitor-js.git"
   },
   "scripts": {
     "test": "mocha -R spec --ui bdd",
     "cover": "istanbul cover _mocha",
     "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | ./node_modules/.bin/codecov --pipe",
-    "up": "ncu -u -x chai && npm install && npm update && npm audit fix"
+    "update": "ncu -u -x chai && npm install && npm update && npm audit fix"
   },
   "keywords": [
     "cronitor",
     "cron jobs",
     "cron monitoring"
   ],
-  "author": "August Flanagan august@cronitor.io",
+  "author": "August Flanagan <august@cronitor.io>",
   "license": "MIT",
   "dependencies": {
     "axios": "^1.6.5",
