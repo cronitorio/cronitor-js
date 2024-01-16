@@ -11,19 +11,19 @@ chai.use(sinonChai);
 
 const cronitor = require('../lib/cronitor')('apiKey123');
 
-describe('Config Parser', function() {
-	context('readConfig', function() {
+describe('Config Parser', () => {
+	context('readConfig', () => {
 
-		it('should raise an error when no path to config is set', function() {
-			expect(function() { cronitor.readConfig(); }).to.throw('Must include a path to config file e.g. cronitor.readConfig(\'./cronitor.yaml\')');
+		it('should raise an error when no path to config is set', () => {
+			expect(() => { cronitor.readConfig(); }).to.throw('Must include a path to config file e.g. cronitor.readConfig(\'./cronitor.yaml\')');
 		});
 
-		it('should return a valid config doc as JSON', function() {
+		it('should return a valid config doc as JSON', () => {
 			cronitor.readConfig('./test/cronitor.yaml');
 			expect(Object.keys(cronitor.config)).to.include('monitors');
 		});
 
-		it('should return monitors with keys and types', function() {
+		it('should return monitors with keys and types', () => {
 			const config = cronitor.readConfig('./test/cronitor.yaml', true);
 			config.monitors.forEach(m => {
 				expect(m.key).to.be;
@@ -32,11 +32,11 @@ describe('Config Parser', function() {
 		});
 	});
 
-	context('validateConfig', function() {
-		afterEach(function() {
+	context('validateConfig', () => {
+		afterEach(() => {
 			sinon.restore();
 		});
-		it('should call Monitor.put with array of monitors and rollback: true', async function() {
+		it('should call Monitor.put with array of monitors and rollback: true', async () => {
 			const stub = sinon.stub(cronitor.Monitor, 'put');
 			cronitor.readConfig('./test/cronitor.yaml');
 			await cronitor.validateConfig();
@@ -44,11 +44,11 @@ describe('Config Parser', function() {
 		});
 	});
 
-	context('applyConfig', function() {
-		afterEach(function() {
+	context('applyConfig', () => {
+		afterEach(() => {
 			sinon.restore();
 		});
-		it('should call Monitor.put with array of monitors and rollback: false', async function() {
+		it('should call Monitor.put with array of monitors and rollback: false', async () => {
 			const stub = sinon.stub(cronitor.Monitor, 'put');
 			cronitor.readConfig('./test/cronitor.yaml');
 			await cronitor.applyConfig();
@@ -57,14 +57,14 @@ describe('Config Parser', function() {
 	});
 
 
-	context('generateConfig', function() {
-		it('should throw a not implemented error', function() {
-			expect(function() { cronitor.generateConfig();}).to.throw;
+	context('generateConfig', () => {
+		it('should throw a not implemented error', () => {
+			expect(() => { cronitor.generateConfig();}).to.throw;
 		});
 	});
 });
 
-describe('Telemetry API', function() {
+describe('Telemetry API', () => {
 	const monitor = new cronitor.Monitor('monitor-key');
 	const validParams = {
 		message: 'hello there',
@@ -80,9 +80,9 @@ describe('Telemetry API', function() {
 
 
 	Object.values(cronitor.Monitor.State).forEach((state) => {
-		context(`Ping ${state.toUpperCase()}`, function() {
+		context(`Ping ${state.toUpperCase()}`, () => {
 
-			afterEach(function() {
+			afterEach(() => {
 				sinon.restore();
 			});
 
@@ -108,14 +108,13 @@ describe('Telemetry API', function() {
 	});
 });
 
-describe('Monitor', function() {
-
-	afterEach(function() {
+describe('Monitor', () => {
+	afterEach(() => {
 		sinon.restore();
 	});
 
-	it('should raise an exception when no key is provided', function() {
-		expect(function() { new cronitor.Monitor(); }).to.throw();
+	it('should raise an exception when no key is provided', () => {
+		expect(() => { new cronitor.Monitor(); }).to.throw();
 	});
 
 	it('should pause', function(done) {
@@ -143,20 +142,20 @@ describe('Monitor', function() {
 	});
 });
 
-describe('Event', function() {
+describe('Event', () => {
 	let clock, event;
 
-	beforeEach(function() {
+	beforeEach(() => {
 		clock = sinon.useFakeTimers();
 		event = new cronitor.Event('monitor-key');
 	});
 
-	afterEach(function() {
+	afterEach(() => {
 		clock.restore();
 	});
 
-	context('constructor', function() {
-		it('should set initial values', function() {
+	context('constructor', () => {
+		it('should set initial values', () => {
 			expect(event._state.count).to.eq(0);
 			expect(event.monitor).to.be.instanceOf(Monitor);
 			expect(event.intervalSeconds).to.eq(60);
@@ -164,21 +163,21 @@ describe('Event', function() {
 		});
 
 
-		it('should set intervalSeconds to provided value', function() {
+		it('should set intervalSeconds to provided value', () => {
 			event = new cronitor.Event('monitor-key', { intervalSeconds: 30 });
 			expect(event.intervalSeconds).to.eq(30);
 		});
 
-		context('when no key is provided', function() {
-			it('should raise an exception if a key is not provided', function() {
-				const fnc = function() { new cronitor.Event(); };
+		context('when no key is provided', () => {
+			it('should raise an exception if a key is not provided', () => {
+				const fnc = () => { new cronitor.Event(); };
 				expect(fnc).to.throw('You must initialize Event with a key.');
 			});
 		});
 	});
 
-	context('tick', function() {
-		it('should increase the called count', function() {
+	context('tick', () => {
+		it('should increase the called count', () => {
 			expect(event._state.count).to.eq(0);
 			event.tick();
 			expect(event._state.count).to.eq(1);
@@ -191,14 +190,14 @@ describe('Event', function() {
 		});
 	});
 
-	context('stop', function() {
-		it('should clear the intervalId', function() {
+	context('stop', () => {
+		it('should clear the intervalId', () => {
 			event.stop();
 			expect(event.intervalId).to.not.exist;
 		});
 
-		context('when there are unsynced calls', function() {
-			it('should call _flush', function() {
+		context('when there are unsynced calls', () => {
+			it('should call _flush', () => {
 				const spy = sinon.spy(event, '_flush');
 				event.tick();
 				event.stop();
@@ -207,11 +206,11 @@ describe('Event', function() {
 		});
 	});
 
-	context('fail', function() {
-		afterEach(function() {
+	context('fail', () => {
+		afterEach(() => {
 			sinon.restore();
 		});
-		it('should stop then ping fail', function() {
+		it('should stop then ping fail', () => {
 			const stop = sinon.spy(event, 'stop');
 			const ping = sinon.stub(event.monitor, 'ping');
 			event.fail();
@@ -220,26 +219,26 @@ describe('Event', function() {
 		});
 	});
 
-	context('_flush', function() {
-		afterEach(function() {
+	context('_flush', () => {
+		afterEach(() => {
 			sinon.restore();
 		});
 
-		it('should ping tick with number of calls since last tick', function() {
+		it('should ping tick with number of calls since last tick', () => {
 			const ping = sinon.stub(event.monitor, 'ping');
 			event.tick();
 			event._flush();
 			expect(ping).to.have.been.calledWith({ metrics: { count: 1, duration: event.intervalSeconds, error_count: 0 } });
 		});
 
-		it('should ping tick with number of errors reported', function() {
+		it('should ping tick with number of errors reported', () => {
 			const ping = sinon.stub(event.monitor, 'ping');
 			event.error();
 			event._flush();
 			expect(ping).to.have.been.calledWith({ metrics: { count: 0, duration: event.intervalSeconds, error_count: 1 } });
 		});
 
-		it('should reset the count and errorCount', function() {
+		it('should reset the count and errorCount', () => {
 			const stub = sinon.stub(event.monitor, 'ping');
 			event.tick();
 			expect(event._state.count).to.eq(1);
@@ -253,13 +252,13 @@ describe('Event', function() {
 
 });
 
-// describe("test wrap cron", function() {
-//     it("should load the node-cron library and define the wrapper function", function() {
+// describe("test wrap cron", () => {
+//     it("should load the node-cron library and define the wrapper function", () => {
 //         cronitor.wraps(require('node-cron'))
 
-//         cronitor.schedule('everyMinuteJob', '* * * * *', function() {
+//         cronitor.schedule('everyMinuteJob', '* * * * *', () => {
 //             return new Promise(function(resolve) {
-//                 setTimeout(function() {
+//                 setTimeout(() => {
 //                     console.log('running node-cron every min')
 //                     resolve("i ran for 10 seconds")
 //                 }, 3000)
@@ -268,10 +267,10 @@ describe('Event', function() {
 
 //     })
 
-//     it("should load the NodeCron library and define the wrapper function", function() {
+//     it("should load the NodeCron library and define the wrapper function", () => {
 //         cronitor.wraps(require('cron'))
 
-//         cronitor.schedule('everyMinuteJob', '* * * * *', function() {
+//         cronitor.schedule('everyMinuteJob', '* * * * *', () => {
 //             console.log('running cron every min')
 //             return "i ran for 10 seconds"
 //         })

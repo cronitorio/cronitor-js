@@ -34,7 +34,7 @@ cron.wraps(nodeCron);
 
 // the first parameter is now the key that Cronitor will use
 // to send telemetry events when the jobs runs, completes or fails
-cron.schedule('SendWelcomeEmail', '*/5 * * * *', function() {
+cron.schedule('SendWelcomeEmail', '*/5 * * * *', () => {
     console.log('Sending welcome email to new sign ups every five minutes.');
 });
 ```
@@ -46,7 +46,7 @@ Cronitor can wrap any function with telemetry pings.
 ```javascript
 const cronitor = require('cronitor')('cronitor_api_key');
 
-let asyncWorker = cronitor.wrap('background-worker', async function() {
+let asyncWorker = cronitor.wrap('background-worker', async () => {
     // do some async work
 });
 
