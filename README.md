@@ -1,8 +1,8 @@
-# Cronitor Node Library (updated axios & some quality fixes)
+# Cronitor Node Library
 
 ![Tests](https://github.com/cronitorio/cronitor-js/workflows/Node.js%20CI/badge.svg)
 
-[Cronitor](https://cronitor.io/) provides end-to-end monitoring for background jobs, websites, APIs, and anything else that can send or receive an HTTP request. This library provides convenient access to the Cronitor API from applications written in Javascript. See our [API docs](https://cronitor.io/docs/api) for detailed references on configuring monitors and sending telemetry pings.
+[Cronitor](https://cronitor.io) provides end-to-end monitoring for background jobs, websites, APIs, and anything else that can send or receive an HTTP request. This library provides convenient access to the Cronitor API from applications written in Javascript. See our [API docs](https://cronitor.io/docs/api) for detailed references on configuring monitors and sending telemetry pings.
 
 In this guide:
 
@@ -68,7 +68,7 @@ event = new cronitor.Event('monitor-key');
 
 const app = Consumer.create({
   queueUrl: 'https://sqs.eu-west-1.amazonaws.com/account-id/queue-name',
-  pollingWaitTimeMs: 100 // duration to wait before repolling the queue (defaults to 0).
+  pollingWaitTimeMs: 100, // duration to wait before repolling the queue (defaults to 0).
   handleMessage: async (message) => {
     // do some work with `message`
   }
@@ -206,7 +206,7 @@ const uptimeMonitor = await cronitor.Monitor.put({
     schedule: 'every 45 seconds',
     request: {
         url: 'https://cronitor.io'
-    }
+    },
     assertions: [
         'response.code = 200',
         'response.time < 600ms'
@@ -227,7 +227,7 @@ monitor.delete() // destroy the monitor
 
 ## Package Configuration
 
-The package needs to be configured with your account's `API key`, which is available on the [account settings](https://cronitor.io/settings) page. You can also optionally specify an `api_version`, an `environment`, and a request `timeout`. 
+The package needs to be configured with your account's `API key`, which is available on the [account settings](https://cronitor.io/settings) page. You can also optionally specify an `api_version`, an `environment`, and a request `timeout`.
 
 These can also be supplied using the environment variables `CRONITOR_API_KEY`, `CRONITOR_API_VERSION`, `CRONITOR_ENVIRONMENT`, `CRONITOR_TIMEOUT`.
 
