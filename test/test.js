@@ -249,31 +249,30 @@ describe('Event', () => {
             expect(event._state.errorCount).to.eq(0);
         });
     });
-
 });
 
-// describe("test wrap cron", () => {
-//     it("should load the node-cron library and define the wrapper function", () => {
-//         cronitor.wraps(require('node-cron'))
-
+// describe('test wrap cron', () => {
+//     it('should load the node-cron library and define the wrapper function', () => {
+//         cronitor.wraps(require('node-cron'));
+//
 //         cronitor.schedule('everyMinuteJob', '* * * * *', () => {
 //             return new Promise(function(resolve) {
 //                 setTimeout(() => {
-//                     console.log('running node-cron every min')
-//                     resolve("i ran for 10 seconds")
-//                 }, 3000)
-//             })
-//         })
-
-//     })
-
-//     it("should load the NodeCron library and define the wrapper function", () => {
-//         cronitor.wraps(require('cron'))
-
+//                     console.log('running node-cron every min');
+//                     resolve('i ran for 10 seconds');
+//                 }, 3000);
+//             });
+//         });
+//
+//     });
+//
+//     it('should load the NodeCron library and define the wrapper function', () => {
+//         cronitor.wraps(require('cron'));
+//
 //         cronitor.schedule('everyMinuteJob', '* * * * *', () => {
-//             console.log('running cron every min')
-//             return "i ran for 10 seconds"
-//         })
-
-//     })
-// })
+//             console.log('running cron every min');
+//             return 'i ran for 10 seconds';
+//         });
+//
+//     });
+// });
