@@ -3,6 +3,8 @@ const Monitor = require('../lib/monitor'),
     sinon = require('sinon'),
     sinonChai = require('sinon-chai'),
     sinonStubPromise = require('sinon-stub-promise'),
+    fs = require('fs').promises,
+    yaml = require('js-yaml'),    
     expect = chai.expect;
 
 
@@ -14,52 +16,74 @@ const cronitor = require('../lib/cronitor')('apiKey123');
 describe('Config Parser', () => {
     context('readConfig', () => {
 
-        it('should raise an error when no path to config is set', () => {
-            expect(() => { cronitor.readConfig(); }).to.throw('Must include a path to config file e.g. cronitor.readConfig(\'./cronitor.yaml\')');
+        it('should raise an error when no path to config is set', async () => {
+            try {
+                await cronitor.readConfig()
+                expect.fail('Should have raised an error');
+            } catch (err) {
+                expect(err.message).to.eq('Must include a path to config file e.g. cronitor.readConfig({path: \'./cronitor.yaml\'})');
+            }
         });
 
-        it('should return a valid config doc as JSON', () => {
-            cronitor.readConfig('./test/cronitor.yaml');
-            expect(Object.keys(cronitor.config)).to.include('monitors');
+        it('should read a config file into memory', async () => {
+            expect(cronitor.config).to.be.undefined;
+            await cronitor.readConfig({path: './test/cronitor.yaml'});
+            expect(cronitor.config).to.not.be.undefined;
         });
-
-        it('should return monitors with keys and types', () => {
-            const config = cronitor.readConfig('./test/cronitor.yaml', true);
-            config.monitors.forEach(m => {
-                expect(m.key).to.be;
-                expect(m.type).to.be;
-            });
-        });
+        
     });
 
     context('validateConfig', () => {
         afterEach(() => {
             sinon.restore();
         });
-        it('should call Monitor.put with array of monitors and rollback: true', async () => {
+        it('should call Monitor.put with a YAML payload and rollback: true', async () => {
             const stub = sinon.stub(cronitor.Monitor, 'put');
-            cronitor.readConfig('./test/cronitor.yaml');
+            await cronitor.readConfig({path: './test/cronitor.yaml'});
             await cronitor.validateConfig();
-            expect(stub).to.be.calledWith(sinon.match.array, true);
+            expect(stub).to.be.calledWith(sinon.match.string, { rollback: true, format: Monitor.requestType.YAML});
         });
     });
 
     context('applyConfig', () => {
-        afterEach(() => {
-            sinon.restore();
+        afterEach(async () => {
+            sinon.restore();            
         });
+
         it('should call Monitor.put with array of monitors and rollback: false', async () => {
             const stub = sinon.stub(cronitor.Monitor, 'put');
-            cronitor.readConfig('./test/cronitor.yaml');
+            await cronitor.readConfig({path: './test/cronitor.yaml'});
             await cronitor.applyConfig();
-            expect(stub).to.be.calledWith(sinon.match.array, false);
+            expect(stub).to.be.calledWith(sinon.match.string, { rollback: false, format: Monitor.requestType.YAML});
         });
     });
 
 
     context('generateConfig', () => {
-        it('should throw a not implemented error', () => {
-            expect(() => { cronitor.generateConfig();}).to.throw;
+        afterEach(async () => {
+            sinon.restore();            
+            await fs.unlink('./cronitor-test.yaml');      
+        });
+
+        it('should write a YAML file to the location specified', async () => {
+            const stub = sinon.stub(cronitor._api.axios, 'get');
+            const dummyData = await fs.readFile('./test/cronitor.yaml', 'utf8');
+            stub.resolves({data: dummyData})
+            const resp = await cronitor.generateConfig({path: './cronitor-test.yaml'});
+            
+            expect(stub).to.be.called;
+            expect(resp).to.be.true;
+            
+            // read the config file and check that it is valid YAML
+            try {
+                const data = await fs.readFile('./cronitor-test.yaml', 'utf8');
+                const config = yaml.load(data);
+                expect(Object.keys(config)).to.include('jobs');
+                expect(Object.keys(config)).to.include('checks');
+                expect(Object.keys(config)).to.include('heartbeats');                       
+            } catch (err) {
+                console.error('Failed to read the file:', err);
+            }                        
         });
     });
 });
@@ -254,7 +278,7 @@ describe('Event', () => {
 // describe('test wrap cron', () => {
 //     it('should load the node-cron library and define the wrapper function', () => {
 //         cronitor.wraps(require('node-cron'));
-//
+
 //         cronitor.schedule('everyMinuteJob', '* * * * *', () => {
 //             return new Promise(function(resolve) {
 //                 setTimeout(() => {
@@ -263,16 +287,16 @@ describe('Event', () => {
 //                 }, 3000);
 //             });
 //         });
-//
+
 //     });
-//
+
 //     it('should load the NodeCron library and define the wrapper function', () => {
 //         cronitor.wraps(require('cron'));
-//
+
 //         cronitor.schedule('everyMinuteJob', '* * * * *', () => {
 //             console.log('running cron every min');
 //             return 'i ran for 10 seconds';
 //         });
-//
+
 //     });
 // });
