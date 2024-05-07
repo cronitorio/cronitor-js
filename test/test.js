@@ -4,7 +4,7 @@ const Monitor = require('../lib/monitor'),
     sinonChai = require('sinon-chai'),
     sinonStubPromise = require('sinon-stub-promise'),
     fs = require('fs').promises,
-    yaml = require('js-yaml'),    
+    yaml = require('js-yaml'),
     expect = chai.expect;
 
 
@@ -30,7 +30,7 @@ describe('Config Parser', () => {
             await cronitor.readConfig({path: './test/cronitor.yaml'});
             expect(cronitor.config).to.not.be.undefined;
         });
-        
+
     });
 
     context('validateConfig', () => {
@@ -56,7 +56,7 @@ describe('Config Parser', () => {
 
     context('applyConfig', () => {
         afterEach(async () => {
-            sinon.restore();            
+            sinon.restore();
             cronitor.path = null;
         });
 
@@ -79,8 +79,8 @@ describe('Config Parser', () => {
 
     context('generateConfig', () => {
         afterEach(async () => {
-            sinon.restore();            
-            await fs.unlink('./cronitor-test.yaml');      
+            sinon.restore();
+            await fs.unlink('./cronitor-test.yaml');
         });
 
         it('should write a YAML file to the location specified', async () => {
@@ -88,28 +88,28 @@ describe('Config Parser', () => {
             const dummyData = await fs.readFile('./test/cronitor.yaml', 'utf8');
             stub.resolves({data: dummyData})
             const resp = await cronitor.generateConfig({path: './cronitor-test.yaml'});
-            
+
             expect(stub).to.be.called;
             expect(resp).to.be.true;
-            
+
             // read the config file and check that it is valid YAML
             try {
                 const data = await fs.readFile('./cronitor-test.yaml', 'utf8');
                 const config = yaml.load(data);
                 expect(Object.keys(config)).to.include('jobs');
                 expect(Object.keys(config)).to.include('checks');
-                expect(Object.keys(config)).to.include('heartbeats');                       
+                expect(Object.keys(config)).to.include('heartbeats');
             } catch (err) {
                 console.error('Failed to read the file:', err);
-            }                        
+            }
         });
 
-        it('should allow a group to be specified', async () => {           
+        it('should allow a group to be specified', async () => {
             const stub = sinon.stub(cronitor._api.axios, 'get');
             const dummyData = await fs.readFile('./test/cronitor.yaml', 'utf8');
             stub.resolves({data: dummyData})
             const resp = await cronitor.generateConfig({path: './cronitor-test.yaml', group: 'test-group'});
-            
+
             expect(stub).to.be.calledWith('https://cronitor.io/api/monitors.yaml?group=test-group');
             expect(resp).to.be.true;
         });
@@ -326,20 +326,20 @@ describe.skip('test wrap cron', () => {
 
 describe.skip('functional test YAML API', () => {
     const cronitor = require('../lib/cronitor')('ADD_YOUR_API_KEY')
-    
-    it('should read a config file and validate it', async () => {        
+
+    it('should read a config file and validate it', async () => {
         const validated = await cronitor.validateConfig({path: './test/cronitor.yaml'});
         expect(validated).to.be.true;
     });
 
-    it('should read a config file and apply it', async () => {        
+    it('should read a config file and apply it', async () => {
         const applied = await cronitor.applyConfig({path: './test/cronitor.yaml'});
         expect(applied).to.be.true;
 
         // clean up if this runs against prod
         const config = await cronitor.readConfig({path: './test/cronitor.yaml', output: true});
         keys = Object.keys(config).map((k) => Object.keys(config[k])).flat();
-        keys.map(async (k) => { 
+        keys.map(async (k) => {
             const monitor = new cronitor.Monitor(k);
             await monitor.delete()
         });
