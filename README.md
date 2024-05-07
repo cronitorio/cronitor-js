@@ -130,13 +130,13 @@ a deployment or build process. For details on all of the attributes that can be 
 ```javascript
 const cronitor = require('cronitor')('apiKey123');
 
-cronitor.readConfig('./cronitor.yaml'); // parse the yaml file of monitors
+cronitor.readConfig({path: './cronitor.yaml'}); // parse the yaml file of monitors
 
-cronitor.validateConfig(); // send monitors to Cronitor for configuration validation
+cronitor.validateConfig({path: './cronitor.yaml'}); // send monitors to Cronitor for configuration validation
 
-cronitor.applyConfig(); // sync the monitors from the config file to Cronitor
+cronitor.applyConfig({path: './cronitor.yaml'}); // sync the monitors from the config file to Cronitor
 
-cronitor.generateConfig(); // generate a new config file from the Cronitor API
+cronitor.generateConfig({path: './cronitor.yaml'}); // generate a new config file from the Cronitor API
 
 ```
 
@@ -233,9 +233,9 @@ These can also be supplied using the environment variables `CRONITOR_API_KEY`, `
 
 ```javascript
 const cronitor = require('cronitor')(
-    'cronitor_api_key', 
+    'cronitor_api_key',
     {
-        apiVersion: '2020-10-01', 
+        apiVersion: '2020-10-01',
         environment: 'staging',
         timeout: 5000
     });
