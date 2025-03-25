@@ -192,6 +192,15 @@ describe('Monitor', () => {
         expect(stub).to.be.calledWith(`${monitor._api.pingUrl(monitor.key)}`);
         done();
     });
+
+    it('should use eu subdomain when region is set to eu', function(done) {
+        const euCronitor = require('../lib/cronitor')('apiKey123', { region: 'eu' });
+        const monitor = new euCronitor.Monitor('a-key');
+        const stub = sinon.stub(monitor._api.axios, 'get');
+        monitor.ok();
+        expect(stub).to.be.calledWith('https://eu.cronitor.link/ping/apiKey123/a-key');
+        done();
+    });
 });
 
 describe('Event', () => {
