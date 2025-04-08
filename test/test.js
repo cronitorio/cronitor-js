@@ -201,6 +201,31 @@ describe('Monitor', () => {
         expect(stub).to.be.calledWith('https://eu.cronitor.link/ping/apiKey123/a-key');
         done();
     });
+
+    it('should load monitor data', async function() {
+        const monitor = new cronitor.Monitor('a-key');
+        const mockResponse = { data: { name: 'Test Monitor', type: 'job' } };
+        const stub = sinon.stub(monitor._api.axios, 'get').resolves(mockResponse);
+        
+        const result = await monitor.loadData();
+        
+        expect(stub).to.be.calledWith(monitor._api.monitorUrl(monitor.key));
+        expect(result).to.deep.equal(mockResponse.data);
+        expect(monitor.data).to.deep.equal(mockResponse.data);
+    });
+
+    it('should return error response when loadData fails', async function() {
+        const monitor = new cronitor.Monitor('a-key');
+        const errorResponse = { status: 404, data: { error: 'Not Found' } };
+        const stub = sinon.stub(monitor._api.axios, 'get')
+            .rejects({ response: errorResponse });
+        
+        const result = await monitor.loadData();
+        
+        expect(stub).to.be.calledWith(monitor._api.monitorUrl(monitor.key));
+        expect(result).to.deep.equal(errorResponse);
+        expect(monitor.data).to.be.null;
+    });
 });
 
 describe('Event', () => {
