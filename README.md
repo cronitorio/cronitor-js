@@ -1,4 +1,4 @@
-# Cronitor Node Library
+# Cronitor Javascript Library
 
 ![Tests](https://github.com/cronitorio/cronitor-js/workflows/Node.js%20CI/badge.svg)
 
