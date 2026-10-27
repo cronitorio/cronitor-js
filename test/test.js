@@ -345,7 +345,9 @@ describe('axios HTTP', () => {
     });
 
     it('sends a ping through axios with the serialized query string', async () => {
-        const previousApi = Monitor._api;
+        const Event = require('../lib/event');
+        const previousMonitorApi = Monitor._api;
+        const previousEventApi = Event._api;
         nock.disableNetConnect();
         try {
             const client = require('../lib/cronitor')('apiKey123');
@@ -385,7 +387,8 @@ describe('axios HTTP', () => {
             expect(seen.headers['user-agent']).to.eq('cronitor-js');
             expect(seen.headers.authorization).to.eq('Basic ' + Buffer.from('apiKey123:').toString('base64'));
         } finally {
-            Monitor._api = previousApi;
+            Monitor._api = previousMonitorApi;
+            Event._api = previousEventApi;
         }
     });
 });
