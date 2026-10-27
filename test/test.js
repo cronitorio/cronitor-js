@@ -5,6 +5,7 @@ const Monitor = require('../lib/monitor'),
     sinonStubPromise = require('sinon-stub-promise'),
     fs = require('fs').promises,
     yaml = require('js-yaml'),
+    nock = require('nock'),
     expect = chai.expect;
 
 
@@ -334,6 +335,61 @@ describe('Event', () => {
             expect(event._state.count).to.eq(0);
             expect(event._state.errorCount).to.eq(0);
         });
+    });
+});
+
+describe('axios HTTP', () => {
+    afterEach(() => {
+        nock.cleanAll();
+        nock.enableNetConnect();
+    });
+
+    it('sends a ping through axios with the serialized query string', async () => {
+        const Event = require('../lib/event');
+        const previousMonitorApi = Monitor._api;
+        const previousEventApi = Event._api;
+        nock.disableNetConnect();
+        try {
+            const client = require('../lib/cronitor')('apiKey123');
+            const monitor = new client.Monitor('monitor-key');
+            let seen = null;
+
+            const scope = nock('https://cronitor.link', {
+                reqheaders: {
+                    'user-agent': 'cronitor-js',
+                    authorization: 'Basic ' + Buffer.from('apiKey123:').toString('base64'),
+                },
+            }).get('/ping/apiKey123/monitor-key').query(true).reply(function (uri) {
+                seen = { uri, headers: this.req.headers };
+                return [200, 'ok'];
+            });
+
+            const ok = await monitor.ping({
+                state: client.Monitor.State.RUN,
+                message: 'hello there',
+                metrics: { count: 1, error_count: 1, duration: 100 },
+                env: 'production',
+                host: '10-0-0-223',
+                series: 'world',
+            });
+
+            expect(ok).to.eq(true);
+            expect(scope.isDone()).to.eq(true);
+            expect(seen.uri).to.include('state=run');
+            expect(seen.uri).to.include('message=hello%20there');
+            expect(seen.uri).to.include('metric=count:1');
+            expect(seen.uri).to.include('metric=error_count:1');
+            expect(seen.uri).to.include('metric=duration:100');
+            expect(seen.uri).to.include('series=world');
+            expect(seen.uri).to.include('host=10-0-0-223');
+            expect(seen.uri).to.include('env=production');
+            expect(seen.uri).to.match(/[?&]stamp=\d+(\.\d+)?/);
+            expect(seen.headers['user-agent']).to.eq('cronitor-js');
+            expect(seen.headers.authorization).to.eq('Basic ' + Buffer.from('apiKey123:').toString('base64'));
+        } finally {
+            Monitor._api = previousMonitorApi;
+            Event._api = previousEventApi;
+        }
     });
 });
 
