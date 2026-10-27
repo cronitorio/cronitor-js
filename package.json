@@ -22,8 +22,8 @@
   "author": "August Flanagan <august@cronitor.io>",
   "license": "MIT",
   "dependencies": {
-    "axios": "^1.6.5",
-    "js-yaml": "^4.1.0",
+    "axios": "^1.21.0",
+    "js-yaml": "^4.3.2",
     "qs": "^6.11.2"
   },
   "devDependencies": {
@@ -40,5 +40,8 @@
     "sinon-chai": "^3.7.0",
     "sinon-stub-promise": "^4.0.0",
     "typescript": "^5.9.3"
+  },
+  "overrides": {
+    "serialize-javascript": "7.0.3"
   }
 }
