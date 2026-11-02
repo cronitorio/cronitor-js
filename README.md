@@ -117,10 +117,14 @@ monitor.ping({
     metrics: {
         duration: 100,
         count: 4500,
-        error_count: 10
+        error_count: 10,
+        queue_depth: 42, // custom metric: any named numeric measurement
+        quality_score: 0.87
     }
 });
 ```
+
+Custom metric names (for example `queue_depth` or `quality_score`) use the same `metrics` object and are sent as repeated `metric=name:value` query params. Server-side, names are lowercased, max 63 characters, and may contain letters, numbers, underscores, and hyphens.
 
 ## Configuring Monitors
 
