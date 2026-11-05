@@ -4,6 +4,9 @@
   "description": "A simple library for reliably monitoring cron jobs, control-loops, or other important system events with Cronitor.",
   "main": "lib/cronitor.js",
   "types": "index.d.ts",
+  "engines": {
+    "node": ">=14"
+  },
   "files": [
     "lib/",
     "index.d.ts",
