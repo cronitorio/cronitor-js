@@ -303,6 +303,20 @@ describe('Error Tracking', () => {
         });
     });
 
+    describe('Monitor-bound capture', () => {
+        it('returns null instead of throwing when options accessors throw', () => {
+            const client = Cronitor('api_key', { dsn: 'https://ing_key@cronitor.link/1' });
+            const monitor = new client.Monitor('my-job');
+            const badOpts = {};
+            Object.defineProperty(badOpts, 'tags', {
+                enumerable: true,
+                get() { throw new Error('getter boom'); },
+            });
+            expect(monitor.captureException(new Error('x'), badOpts)).to.equal(null);
+            expect(monitor.captureMessage('hi', badOpts)).to.equal(null);
+        });
+    });
+
     describe('wrap() auto-capture and rethrow', () => {
         it('pings fail, captures unhandled exception, and rethrows on sync throw', async () => {
             let envelopeBody = null;
@@ -395,6 +409,10 @@ describe('Error Tracking', () => {
                 .times(2)
                 .reply(200, 'ok');
 
+            const envelopeScope = nock('https://cronitor.link')
+                .post('/api/1/envelope/')
+                .reply(200, {});
+
             const client = Cronitor('api_key', { dsn: 'https://ing_key@cronitor.link/1' });
             const boom = new Error('no capture');
             const wrapped = client.wrap('opt-out-job', () => {
@@ -410,6 +428,7 @@ describe('Error Tracking', () => {
 
             expect(caught).to.equal(boom);
             expect(await client.flush()).to.be.true;
+            expect(envelopeScope.isDone()).to.be.false;
         });
 
         it('respects client-level captureExceptions: false', async () => {
@@ -418,6 +437,10 @@ describe('Error Tracking', () => {
                 .query(true)
                 .times(2)
                 .reply(200, 'ok');
+
+            const envelopeScope = nock('https://cronitor.link')
+                .post('/api/1/envelope/')
+                .reply(200, {});
 
             const client = Cronitor('api_key', {
                 dsn: 'https://ing_key@cronitor.link/1',
@@ -437,6 +460,36 @@ describe('Error Tracking', () => {
 
             expect(caught).to.equal(boom);
             expect(await client.flush()).to.be.true;
+            expect(envelopeScope.isDone()).to.be.false;
+        });
+
+        it('does not capture or log a missing DSN when wrap throws without a DSN', async () => {
+            nock('https://cronitor.link')
+                .get('/ping/api_key/no-dsn-job')
+                .query(true)
+                .times(2)
+                .reply(200, 'ok');
+
+            const messages = [];
+            const originalError = console.error;
+            console.error = function () { messages.push(Array.from(arguments).join(' ')); };
+
+            try {
+                const client = Cronitor('api_key');
+                const boom = new Error('no dsn');
+                const wrapped = client.wrap('no-dsn-job', () => { throw boom; });
+                let caught = null;
+                try {
+                    await wrapped();
+                } catch (err) {
+                    caught = err;
+                }
+                expect(caught).to.equal(boom);
+                expect(await client.flush()).to.be.true;
+                expect(messages.join('\n')).to.not.include('No DSN detected');
+            } finally {
+                console.error = originalError;
+            }
         });
     });
 
@@ -579,6 +632,23 @@ describe('Error Tracking', () => {
                 caught = err;
             }
             expect(caught).to.be.instanceOf(Cronitor.ErrorGroupNotFound);
+        });
+
+        it('requires a key for ErrorApp and ErrorGroup constructors', () => {
+            const client = Cronitor('api_key_rest');
+            expect(() => new client.ErrorApp('')).to.throw(Cronitor.ConfigError);
+            expect(() => new client.ErrorGroup('')).to.throw(Cronitor.ConfigError);
+        });
+
+        it('does not loop infinitely when autoPaginate is set and pageSize is 0', async () => {
+            const client = Cronitor('api_key_rest');
+            const listScope = nock('https://cronitor.io')
+                .get('/api/error-apps')
+                .query({ page: '1', pageSize: '50' })
+                .reply(200, { error_apps: [] });
+            const apps = await client.ErrorApp.list({ autoPaginate: true, pageSize: 0 });
+            expect(listScope.isDone()).to.be.true;
+            expect(apps).to.have.lengthOf(0);
         });
     });
 

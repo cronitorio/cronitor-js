@@ -15,8 +15,8 @@ declare namespace Cronitor {
         _api: ApiConfig;
         Monitor: typeof Monitor;
         Event: typeof Event;
-        ErrorApp: typeof ErrorApp;
-        ErrorGroup: typeof ErrorGroup;
+        ErrorApp: ErrorAppConstructor;
+        ErrorGroup: ErrorGroupConstructor;
         path?: string;
         config?: any;
 
@@ -308,20 +308,21 @@ declare namespace Cronitor {
         autoPaginate?: boolean;
     }
 
-    class ErrorApp {
+    interface ErrorApp {
         key: string;
         data: ErrorAppData | null;
         readonly dsn: string | undefined;
-
-        constructor(key: string);
-
-        static create(options: ErrorAppCreateOptions): Promise<ErrorApp>;
-        static list(options?: ErrorAppListOptions): Promise<ErrorApp[]>;
 
         loadData(): Promise<ErrorAppData>;
         update(options: ErrorAppUpdateOptions): Promise<ErrorApp>;
         delete(): Promise<boolean>;
         rotateKey(): Promise<ErrorApp>;
+    }
+
+    interface ErrorAppConstructor {
+        new (key: string): ErrorApp;
+        create(options: ErrorAppCreateOptions): Promise<ErrorApp>;
+        list(options?: ErrorAppListOptions): Promise<ErrorApp[]>;
     }
 
     // ErrorGroup REST resource
@@ -370,18 +371,19 @@ declare namespace Cronitor {
         [key: string]: any;
     }
 
-    class ErrorGroup {
+    interface ErrorGroup {
         key: string;
         data: ErrorGroupData | null;
-
-        constructor(key: string);
-
-        static list(options?: ErrorGroupListOptions): Promise<ErrorGroup[]>;
 
         loadData(): Promise<ErrorGroupData>;
         update(options: ErrorGroupUpdateOptions): Promise<ErrorGroup>;
         events(options?: ErrorGroupEventsOptions): Promise<ErrorGroupEventsResponse>;
         event(eventId: string): Promise<ErrorEventData>;
+    }
+
+    interface ErrorGroupConstructor {
+        new (key: string): ErrorGroup;
+        list(options?: ErrorGroupListOptions): Promise<ErrorGroup[]>;
     }
 
     // Error classes
