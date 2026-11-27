@@ -1,9 +1,16 @@
 {
   "name": "cronitor",
-  "version": "2.6.4",
+  "version": "2.7.0",
   "description": "A simple library for reliably monitoring cron jobs, control-loops, or other important system events with Cronitor.",
   "main": "lib/cronitor.js",
   "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "require": "./lib/cronitor.js",
+      "default": "./lib/cronitor.js"
+    }
+  },
   "engines": {
     "node": ">=14"
   },
@@ -19,6 +26,7 @@
   },
   "scripts": {
     "test": "mocha -R spec --ui bdd",
+    "typecheck": "tsc --noEmit",
     "cover": "istanbul cover _mocha",
     "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | ./node_modules/.bin/codecov --pipe",
     "update": "ncu -u -x chai && npm install && npm update && npm audit fix"

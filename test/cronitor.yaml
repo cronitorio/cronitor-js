@@ -20,3 +20,14 @@ heartbeats:
                 - default
             events:
                 complete: true
+
+errors:
+    billing-error-spikes:
+        trigger: spike
+        apps:
+            - app_0123456789abcdef
+        threshold: 25
+        window: 5m
+        per: fingerprint
+        notify:
+            - default

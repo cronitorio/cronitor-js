@@ -15,6 +15,8 @@ declare namespace Cronitor {
         _api: ApiConfig;
         Monitor: typeof Monitor;
         Event: typeof Event;
+        ErrorApp: ErrorAppConstructor;
+        ErrorGroup: ErrorGroupConstructor;
         path?: string;
         config?: any;
 
@@ -39,9 +41,13 @@ declare namespace Cronitor {
         readConfig(options?: ConfigOptions & { output?: boolean }): Promise<boolean | any>;
 
         /**
-         * Wrap a function with Cronitor telemetry (run/complete/fail pings)
+         * Wrap a function with Cronitor telemetry (run/complete/fail pings) and optional error capture
          */
-        wrap<T extends (...args: any[]) => any>(key: string, callback: T): (...args: Parameters<T>) => Promise<ReturnType<T>>;
+        wrap<T extends (...args: any[]) => any>(
+            key: string,
+            callback: T,
+            options?: WrapOptions
+        ): (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>>;
 
         /**
          * Wrap a cron library (node-cron or cron) to add Cronitor monitoring
@@ -62,6 +68,24 @@ declare namespace Cronitor {
          * Generate a unique series ID for grouping related pings
          */
         newSeries(): string;
+
+        /**
+         * Capture an exception and send it to Cronitor Error Tracking.
+         * Returns the event ID if queued, or null if not sent. Never throws.
+         */
+        captureException(error: unknown, options?: CaptureOptions): string | null;
+
+        /**
+         * Capture a message and send it to Cronitor Error Tracking.
+         * Returns the event ID if queued, or null if not sent. Never throws.
+         */
+        captureMessage(message: string, options?: CaptureOptions): string | null;
+
+        /**
+         * Wait for in-flight error-tracking envelopes to settle, up to timeoutMs (default 2000ms).
+         * Resolves true if drained, false on timeout. Never throws.
+         */
+        flush(timeoutMs?: number): Promise<boolean>;
     }
 
     // Configuration
@@ -72,11 +96,30 @@ declare namespace Cronitor {
         timeout?: number;
         config?: string;
         region?: string;
+        dsn?: string;
+        release?: string;
+        captureExceptions?: boolean;
     }
 
     interface ConfigOptions {
         path?: string;
         group?: string;
+    }
+
+    interface WrapOptions {
+        captureExceptions?: boolean;
+    }
+
+    type CaptureLevel = 'fatal' | 'critical' | 'error' | 'warning' | 'warn' | 'info' | 'debug';
+
+    interface CaptureOptions {
+        monitor?: string;
+        series?: string;
+        level?: CaptureLevel;
+        tags?: Record<string, string | number | boolean>;
+        extra?: Record<string, any>;
+        fingerprint?: string | string[];
+        env?: string;
     }
 
     interface ApiConfig {
@@ -85,6 +128,8 @@ declare namespace Cronitor {
         env: string | null;
         pingUrl: (key: string) => string;
         monitorUrl: (key?: string) => string;
+        captureException: (error: unknown, options?: CaptureOptions) => string | null;
+        captureMessage: (message: string, options?: CaptureOptions) => string | null;
         axios: any;
     }
 
@@ -109,6 +154,16 @@ declare namespace Cronitor {
          * Send a ping/telemetry event
          */
         ping(params?: PingParams | string): Promise<boolean>;
+
+        /**
+         * Capture an exception bound to this monitor and its environment
+         */
+        captureException(error: unknown, options?: CaptureOptions): string | null;
+
+        /**
+         * Capture a message bound to this monitor and its environment
+         */
+        captureMessage(message: string, options?: CaptureOptions): string | null;
 
         /**
          * Pause alerting for a number of hours
@@ -145,7 +200,7 @@ declare namespace Cronitor {
 
     // Monitor configuration
     interface MonitorConfig {
-        type?: 'job' | 'check' | 'heartbeat';
+        type?: 'job' | 'check' | 'heartbeat' | 'errors';
         key: string;
         schedule?: string;
         assertions?: string[];
@@ -159,6 +214,12 @@ declare namespace Cronitor {
             timeout?: number;
             follow_redirects?: boolean;
         };
+        trigger?: 'new' | 'regression' | 'spike';
+        apps?: string[];
+        filters?: Record<string, any>;
+        threshold?: number;
+        window?: string;
+        per?: string;
         tags?: string[];
         note?: string;
         grace_seconds?: number;
@@ -223,6 +284,108 @@ declare namespace Cronitor {
         intervalSeconds?: number;
     }
 
+    // ErrorApp REST resource
+    interface ErrorAppData {
+        key: string;
+        name: string;
+        dsn?: string;
+        [key: string]: any;
+    }
+
+    interface ErrorAppCreateOptions {
+        name: string;
+        [key: string]: any;
+    }
+
+    interface ErrorAppUpdateOptions {
+        name?: string;
+        [key: string]: any;
+    }
+
+    interface ErrorAppListOptions {
+        page?: number;
+        pageSize?: number;
+        autoPaginate?: boolean;
+    }
+
+    interface ErrorApp {
+        key: string;
+        data: ErrorAppData | null;
+        readonly dsn: string | undefined;
+
+        loadData(): Promise<ErrorAppData>;
+        update(options: ErrorAppUpdateOptions): Promise<ErrorApp>;
+        delete(): Promise<boolean>;
+        rotateKey(): Promise<ErrorApp>;
+    }
+
+    interface ErrorAppConstructor {
+        new (key: string): ErrorApp;
+        create(options: ErrorAppCreateOptions): Promise<ErrorApp>;
+        list(options?: ErrorAppListOptions): Promise<ErrorApp[]>;
+    }
+
+    // ErrorGroup REST resource
+    interface ErrorGroupData {
+        key: string;
+        title?: string;
+        status?: string;
+        level?: string;
+        [key: string]: any;
+    }
+
+    interface ErrorGroupListOptions {
+        app?: string;
+        env?: string;
+        status?: string;
+        level?: string;
+        start?: string;
+        end?: string;
+        q?: string;
+        orderBy?: string;
+        page?: number;
+        pageSize?: number;
+        autoPaginate?: boolean;
+    }
+
+    interface ErrorGroupUpdateOptions {
+        status: string;
+        env?: string;
+    }
+
+    interface ErrorGroupEventsOptions {
+        env?: string;
+        app?: string;
+        cursor?: string;
+        limit?: number;
+    }
+
+    interface ErrorEventData {
+        event_id: string;
+        [key: string]: any;
+    }
+
+    interface ErrorGroupEventsResponse {
+        data: ErrorEventData[];
+        next_cursor?: string | null;
+        [key: string]: any;
+    }
+
+    interface ErrorGroup {
+        key: string;
+        data: ErrorGroupData | null;
+
+        loadData(): Promise<ErrorGroupData>;
+        update(options: ErrorGroupUpdateOptions): Promise<ErrorGroup>;
+        events(options?: ErrorGroupEventsOptions): Promise<ErrorGroupEventsResponse>;
+        event(eventId: string): Promise<ErrorEventData>;
+    }
+
+    interface ErrorGroupConstructor {
+        new (key: string): ErrorGroup;
+        list(options?: ErrorGroupListOptions): Promise<ErrorGroup[]>;
+    }
+
     // Error classes
     class MonitorNotCreated extends Error {
         constructor(message?: string);
@@ -233,6 +396,14 @@ declare namespace Cronitor {
     }
 
     class InvalidMonitor extends Error {
+        constructor(message?: string);
+    }
+
+    class ErrorAppNotFound extends Error {
+        constructor(message?: string);
+    }
+
+    class ErrorGroupNotFound extends Error {
         constructor(message?: string);
     }
 }

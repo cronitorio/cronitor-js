@@ -9,6 +9,7 @@ In this guide:
 - [Installation](#Installation)
 - [Monitoring Background Jobs](#monitoring-background-jobs)
 - [Sending Telemetry Events](#sending-telemetry-events)
+- [Error Tracking](#error-tracking)
 - [Configuring Monitors](#configuring-monitors)
 - [Package Configuration & Env Vars](#package-configuration)
 
@@ -41,10 +42,12 @@ cron.schedule('SendWelcomeEmail', '*/5 * * * *', () => {
 
 ### Monitor Any Function
 
-Cronitor can wrap any function with telemetry pings.
+Cronitor can wrap any function with telemetry pings. If the wrapped function throws or rejects, Cronitor sends a `fail` ping, captures an unhandled error event when `dsn` is configured (unless disabled via `captureExceptions: false`), and rethrows the original error.
 
 ```javascript
-const cronitor = require('cronitor')('cronitor_api_key');
+const cronitor = require('cronitor')('cronitor_api_key', {
+    dsn: 'https://<ingest_key>@cronitor.link/1',
+});
 
 let asyncWorker = cronitor.wrap('background-worker', async () => {
     // do some async work
@@ -122,6 +125,110 @@ monitor.ping({
 });
 ```
 
+## Error Tracking
+
+Cronitor captures exceptions and messages natively and sends them in the background without blocking or throwing into your application code.
+
+Configure `dsn` (or `CRONITOR_DSN`) using the DSN from an Error App created in the Cronitor dashboard or via `cronitor.ErrorApp.create(...)`:
+
+```javascript
+const cronitor = require('cronitor')('cronitor_api_key', {
+    dsn: 'https://<ingest_key>@cronitor.link/1', // or CRONITOR_DSN
+    environment: 'production',                    // optional, or CRONITOR_ENVIRONMENT
+    release: '2.7.0',                             // optional, or CRONITOR_RELEASE
+});
+```
+
+TypeScript:
+
+```typescript
+import Cronitor from 'cronitor';
+
+const cronitor = Cronitor(process.env.CRONITOR_API_KEY, {
+    dsn: process.env.CRONITOR_DSN,
+    environment: 'production',
+    release: '2.7.0',
+});
+```
+
+### Capturing exceptions and messages
+
+```javascript
+try {
+    await importOrders();
+} catch (err) {
+    cronitor.captureException(err, {
+        monitor: 'import-orders',
+        level: 'error',
+        tags: { region: 'us-east-1' },
+        extra: { batch: 42 },
+        fingerprint: ['import-orders', 'timeout'],
+    });
+}
+
+cronitor.captureMessage('Disk 90% full', {
+    level: 'warning',
+    tags: { host: 'worker-1' },
+    extra: { mount: '/var' },
+    fingerprint: 'disk-space-warning',
+});
+
+// bound to a monitor and its environment
+const monitor = new cronitor.Monitor('import-orders');
+monitor.captureException(new Error('order failed'));
+monitor.captureMessage('Import finished with warnings', { level: 'warning' });
+```
+
+`captureException` and `captureMessage` return the event id string, or `null` if nothing was sent (for example when `dsn` is not configured). Events include `error.cause` chains, V8 stack frames with five lines of source context, hostname, release, and environment. Local variables are never sent. `fingerprint` accepts a string or an array of strings for custom grouping.
+
+Call `await cronitor.flush(2000)` to wait for in-flight envelopes to settle (for example at the end of a serverless handler). `flush()` resolves to `true` if drained and `false` on timeout, and never throws.
+
+### Exceptions inside `cronitor.wrap`
+
+When a function wrapped with `cronitor.wrap` throws or rejects, Cronitor sends a best-effort `fail` ping, captures an unhandled exception event bound to the same monitor key and run series, and rethrows the original error.
+
+Auto-capture defaults to `true`. Turn it off per client or per call:
+
+```javascript
+const cronitor = require('cronitor')('cronitor_api_key', {
+    dsn: 'https://<ingest_key>@cronitor.link/1',
+    captureExceptions: false,
+});
+
+const job = cronitor.wrap('import-orders', importOrders, { captureExceptions: false });
+```
+
+### Managing Error Apps and Error Groups
+
+Use `cronitor.ErrorApp` and `cronitor.ErrorGroup` with your REST API key:
+
+```javascript
+const cronitor = require('cronitor')('apiKey123');
+
+// Create and manage Error Apps
+const app = await cronitor.ErrorApp.create({ name: 'Billing API' });
+console.log(app.key, app.dsn);
+
+const apps = await cronitor.ErrorApp.list({ page: 1, pageSize: 50 });
+await app.update({ name: 'Payments API' });
+await app.rotateKey(); // refreshes app.dsn; old DSN stops working immediately
+await app.delete();
+
+// Query and triage Error Groups
+const groups = await cronitor.ErrorGroup.list({
+    app: 'app_0123456789abcdef',
+    status: 'open',
+    env: 'production',
+});
+const group = new cronitor.ErrorGroup('err_0123456789abcdef');
+await group.loadData();
+console.log(group.data.title);
+await group.update({ status: 'resolved', env: 'production' });
+
+const events = await group.events({ env: 'production', limit: 25 });
+const event = await group.event(events.data[0].event_id);
+```
+
 ## Configuring Monitors
 
 ### Yaml Configuration File
@@ -141,7 +248,7 @@ cronitor.generateConfig({path: './cronitor.yaml'}); // generate a new config fil
 
 ```
 
-The `cronitor.yaml` file includes three top level keys `jobs`, `checks`, `heartbeats`. You can configure monitors under each key by defining [monitors](https://cronitor.io/docs/monitor-api#attributes).
+The `cronitor.yaml` file includes four top level keys `jobs`, `checks`, `heartbeats`, and `errors`. You can configure monitors under each key by defining [monitors](https://cronitor.io/docs/monitor-api#attributes).
 
 ```yaml
 jobs:
@@ -183,6 +290,17 @@ heartbeats:
             alerts: ['deploys-slack']
             events: true # send alert when the event occurs
 
+errors:
+    billing-error-spikes:
+        trigger: spike
+        apps:
+            - app_0123456789abcdef
+        threshold: 25
+        window: 5m
+        per: fingerprint
+        notify:
+            - devops-alert-pagerduty
+
 ```
 
 #### Async Uploads
@@ -217,7 +335,15 @@ const uptimeMonitor = await cronitor.Monitor.put({
         'response.code = 200',
         'response.time < 600ms'
     ]
-})
+});
+
+const errorMonitor = await cronitor.Monitor.put({
+    type: 'errors',
+    key: 'new-billing-errors',
+    trigger: 'new',
+    apps: ['app_0123456789abcdef'],
+    notify: ['devops-alerts-slack']
+});
 ```
 
 ### Pause, Reset, Delete
@@ -233,9 +359,9 @@ monitor.delete() // destroy the monitor
 
 ## Package Configuration
 
-The package needs to be configured with your account's `API key`, which is available on the [account settings](https://cronitor.io/settings) page. You can also optionally specify an `api_version`, an `environment`, a request `timeout`, and a cronitor `region`.
+The package needs to be configured with your account's `API key`, which is available on the [account settings](https://cronitor.io/settings) page. You can also optionally specify an `apiVersion`, an `environment`, a request `timeout`, a cronitor `region`, an Error App `dsn`, a `release`, and `captureExceptions` (default `true`).
 
-These can also be supplied using the environment variables `CRONITOR_API_KEY`, `CRONITOR_API_VERSION`, `CRONITOR_ENVIRONMENT`, `CRONITOR_TIMEOUT`, `CRONITOR_REGION`.
+These can also be supplied using the environment variables `CRONITOR_API_KEY`, `CRONITOR_API_VERSION`, `CRONITOR_ENVIRONMENT`, `CRONITOR_TIMEOUT`, `CRONITOR_REGION`, `CRONITOR_DSN`, and `CRONITOR_RELEASE`.
 
 ```javascript
 const cronitor = require('cronitor')(
@@ -244,7 +370,10 @@ const cronitor = require('cronitor')(
         apiVersion: '2020-10-01',
         environment: 'staging',
         timeout: 5000,
-        region: 'eu'
+        region: 'eu',
+        dsn: 'https://<ingest_key>@cronitor.link/1',
+        release: '2.7.0',
+        captureExceptions: true,
     });
 ```
 
